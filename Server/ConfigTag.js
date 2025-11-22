@@ -182,6 +182,11 @@ function toDocId(pretty) {
   return pretty.replace(/\s|:/g, "").toUpperCase();
 }
 
+// ⭐ 아메리카노 전용 카드 상수 설정
+const AMERICANO_MENU_ID = 'americano'; // seedMenus.js에서 정의한 메뉴 ID :contentReference[oaicite:1]{index=1}
+const AMERICANO_UID_PRETTY = '1D BA 8E 12 09 10 80';
+const AMERICANO_UID_DOCID = toDocId(AMERICANO_UID_PRETTY); // => "1DBA8E12091080"
+
 // 중복 태깅 방지 변수
 const DUPLICATE_SUPPRESS_MS = 1500;
 let lastSeenByReader = new Map();
@@ -222,6 +227,9 @@ function startNFCListener() {
               const uidPretty = toPrettyUid(raw);
               const uidDocId = toDocId(uidPretty);
 
+              // ⭐ 이 카드가 아메리카노 전용 카드인지 여부
+              const isAmericanoCard = (uidDocId === AMERICANO_UID_DOCID);
+
               // 2. 중복 방지
               const now = Date.now();
               const last = lastSeenByReader.get(reader.name) || { ts: 0, id: '' };
@@ -234,46 +242,74 @@ function startNFCListener() {
 
               console.log(`🔔 [NFC] 카드 인식: ${uidPretty}`);
 
-              // 3. 방문 기록 (scan_count)
+              // 3. 방문 기록 (scan_count + 아메리카노 전용 카드 정보까지 포함)
               const uidRef = db.collection(UID_COLLECTION).doc(uidDocId);
-              await uidRef.set({
+
+              // 기본 저장 데이터
+              const uidBaseData = {
                 uid_pretty: uidPretty,
                 last_seen: admin.firestore.FieldValue.serverTimestamp()
-              }, { merge: true });
+              };
 
-              // 4. 🔥 하이브리드 TOP3 계산 🔥
-              
-              // 4-1) 개인 기록 가져오기
-              let finalTop3 = await getPersonalTop3(uidRef);
-
-              // 4-2) 부족하면 글로벌 베스트로 채우기
-              if (finalTop3.length < 3) {
-                console.log(`ℹ️ 개인 추천 부족(${finalTop3.length}개). 가게 베스트로 보충합니다.`);
-                const globalBests = await getGlobalTop3();
-
-                for (const item of globalBests) {
-                  if (finalTop3.length >= 3) break; // 3개 차면 중단
-
-                  // 🚨 중복 검사 (수정된 부분)
-                  // JSON.stringify 대신 canonicalStringify 사용!
-                  const isDuplicate = finalTop3.some(personal => 
-                    personal.menu_id === item.menu_id &&
-                    canonicalStringify(personal.options) === canonicalStringify(item.options)
-                  );
-
-                  if (!isDuplicate) {
-                    finalTop3.push(item);
-                  }
-                }
+              // ⭐ 아메리카노 전용 카드라면 고정 필드 추가
+              if (isAmericanoCard) {
+                uidBaseData.is_americano_card = true;        // 해당 UID는 아메리카노 전용
+                uidBaseData.fixed_menu_id = AMERICANO_MENU_ID;   // 'americano'
+                uidBaseData.fixed_options = {
+                  temp: 'hot',
+                  cup: 'basic'
+                };
               }
 
-              console.log(`✅ 최종 추천 목록(${finalTop3.length}개) 전송`);
+              // 한 번에 merge로 저장 (기존 필드와 충돌 없이 업데이트)
+              await uidRef.set(uidBaseData, { merge: true });
+
+              // 4. 🔥 추천 목록 계산
+              let finalTop3 = [];
+
+              if (isAmericanoCard) {
+                // ⭐ 아메리카노 전용 카드는 추천 알고리즘 대신 고정 추천 1개만 전송
+                finalTop3 = [
+                  {
+                    menu_id: AMERICANO_MENU_ID,
+                    options: { temp: 'hot', cup: 'basic' },
+                    count: 999,             // 의미 없는 큰 숫자 (프론트에서 안 써도 됨)
+                    tag: 'AMERICANO_CARD'  // 프론트에서 특수 카드로 인식 가능
+                  }
+                ];
+                console.log(`✅ 아메리카노 전용 카드 추천 1개 전송`);
+              } else {
+                // 기존 로직: 개인화 + 가게 베스트 하이브리드
+                let personalTop3 = await getPersonalTop3(uidRef);
+                finalTop3 = personalTop3;
+
+                if (finalTop3.length < 3) {
+                  console.log(`ℹ️ 개인 추천 부족(${finalTop3.length}개). 가게 베스트로 보충합니다.`);
+                  const globalBests = await getGlobalTop3();
+
+                  for (const item of globalBests) {
+                    if (finalTop3.length >= 3) break; // 3개 차면 중단
+
+                    const isDuplicate = finalTop3.some(personal =>
+                      personal.menu_id === item.menu_id &&
+                      canonicalStringify(personal.options) === canonicalStringify(item.options)
+                    );
+
+                    if (!isDuplicate) {
+                      finalTop3.push(item);
+                    }
+                  }
+                }
+
+                console.log(`✅ 최종 추천 목록(${finalTop3.length}개) 전송`);
+              }
 
               // 5. 소켓으로 프론트에 전송
               io.emit('nfc_event', {
                 type: 'TAG_ON',
                 uid: uidPretty,
-                top3: finalTop3
+                top3: finalTop3,
+                isAmericanoCard // ⭐ 프론트에서 분기 처리용 플래그
               });
 
             } catch (e) {
