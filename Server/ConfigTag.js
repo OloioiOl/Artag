@@ -182,10 +182,63 @@ function toDocId(pretty) {
   return pretty.replace(/\s|:/g, "").toUpperCase();
 }
 
-// ⭐ 아메리카노 전용 카드 상수 설정
-const AMERICANO_MENU_ID = 'americano'; // seedMenus.js에서 정의한 메뉴 ID :contentReference[oaicite:1]{index=1}
-const AMERICANO_UID_PRETTY = '1D BA 8E 12 09 10 80';
-const AMERICANO_UID_DOCID = toDocId(AMERICANO_UID_PRETTY); // => "1DBA8E12091080"
+// ⭐ UID별 단일 메뉴 매핑 (커피/음료는 HOT/ICE + 포장, 디저트는 포장만)
+const UID_MENU_MAP = {
+  // ───── 커피 ─────
+  '04 D7 27 2F C1 2A 81': { // 카페라떼
+    menu_id: 'cafe_latte',
+    options: { temp: 'hot', cup: 'basic', takeout: true }
+  },
+  '04 43 66 2D C1 2A 81': { // 카푸치노
+    menu_id: 'cappuccino',
+    options: { temp: 'hot', cup: 'basic', takeout: true }
+  },
+  '04 E1 C4 20 C2 2A 81': { // 바닐라라떼
+    menu_id: 'vanilla_latte',
+    options: { temp: 'hot', cup: 'basic', takeout: true }
+  },
+  '1D BA 8E 12 09 10 80': { // 아메리카노
+    menu_id: 'americano',
+    options: { temp: 'hot', cup: 'basic', takeout: true }
+  },
+
+  // ───── 음료 ─────
+  '04 B7 38 22 C2 2A 81': { // 그린티라떼
+    menu_id: 'green_tea_latte',
+    options: { temp: 'hot', cup: 'basic', takeout: true }
+  },
+  '04 A3 3B 22 C2 2A 81': { // 꿀유자차
+    menu_id: 'honey_citron_tea',
+    options: { temp: 'hot', cup: 'basic', takeout: true }
+  },
+  '04 46 18 20 C2 2A 81': { // 레몬에이드 (ICE 기본)
+    menu_id: 'lemon_ade',
+    options: { temp: 'ice', cup: 'basic', takeout: true }
+  },
+  '04 71 11 22 C2 2A 81': { // 고구마라떼
+    menu_id: 'sweet_potato_latte',
+    options: { temp: 'hot', cup: 'basic', takeout: true }
+  },
+
+  // ───── 디저트 (포장만) ─────
+  '04 8A 43 22 C2 2A 81': { // 플레인 베이글
+    menu_id: 'plain_bagel',
+    options: { takeout: true }
+  },
+  '04 B7 8D 2E C1 2A 81': { // 티라미수
+    menu_id: 'tiramisu',
+    options: { takeout: true }
+  },
+  '04 C1 A8 21 C2 2A 81': { // 샌드위치
+    menu_id: 'sandwich',
+    options: { takeout: true }
+  },
+  '1D F1 0A 11 09 10 80': { // 카스텔라
+    menu_id: 'castella',
+    options: { takeout: true }
+  }
+};
+
 
 // 중복 태깅 방지 변수
 const DUPLICATE_SUPPRESS_MS = 1500;
@@ -227,8 +280,8 @@ function startNFCListener() {
               const uidPretty = toPrettyUid(raw);
               const uidDocId = toDocId(uidPretty);
 
-              // ⭐ 이 카드가 아메리카노 전용 카드인지 여부
-              const isAmericanoCard = (uidDocId === AMERICANO_UID_DOCID);
+              // ⭐ 이 UID가 "단일 메뉴 카드"인지 여부 (UID_MENU_MAP에서 찾기)
+              const cardConfig = UID_MENU_MAP[uidPretty] || null;
 
               // 2. 중복 방지
               const now = Date.now();
@@ -251,14 +304,11 @@ function startNFCListener() {
                 last_seen: admin.firestore.FieldValue.serverTimestamp()
               };
 
-              // ⭐ 아메리카노 전용 카드라면 고정 필드 추가
-              if (isAmericanoCard) {
-                uidBaseData.is_americano_card = true;        // 해당 UID는 아메리카노 전용
-                uidBaseData.fixed_menu_id = AMERICANO_MENU_ID;   // 'americano'
-                uidBaseData.fixed_options = {
-                  temp: 'hot',
-                  cup: 'basic'
-                };
+              // ⭐ 단일 메뉴 카드면 고정 메뉴/옵션 저장
+              if (cardConfig) {
+                uidBaseData.is_fixed_menu_card = true;
+                uidBaseData.fixed_menu_id = cardConfig.menu_id;
+                uidBaseData.fixed_options = cardConfig.options;
               }
 
               // 한 번에 merge로 저장 (기존 필드와 충돌 없이 업데이트)
@@ -267,17 +317,17 @@ function startNFCListener() {
               // 4. 🔥 추천 목록 계산
               let finalTop3 = [];
 
-              if (isAmericanoCard) {
-                // ⭐ 아메리카노 전용 카드는 추천 알고리즘 대신 고정 추천 1개만 전송
+              if (cardConfig) {
+                // ⭐단일 메뉴 카드면, 추천 대신 이 메뉴 1개만 전송
                 finalTop3 = [
                   {
-                    menu_id: AMERICANO_MENU_ID,
-                    options: { temp: 'hot', cup: 'basic' },
-                    count: 999,             // 의미 없는 큰 숫자 (프론트에서 안 써도 됨)
-                    tag: 'AMERICANO_CARD'  // 프론트에서 특수 카드로 인식 가능
+                    menu_id: cardConfig.menu_id,
+                    options: cardConfig.options,
+                    count: 999,
+                    tag: 'FIXED_CARD'
                   }
                 ];
-                console.log(`✅ 아메리카노 전용 카드 추천 1개 전송`);
+                console.log(`✅ 단일 메뉴 카드 태그 → ${cardConfig.menu_id}`);
               } else {
                 // 기존 로직: 개인화 + 가게 베스트 하이브리드
                 let personalTop3 = await getPersonalTop3(uidRef);
@@ -309,7 +359,7 @@ function startNFCListener() {
                 type: 'TAG_ON',
                 uid: uidPretty,
                 top3: finalTop3,
-                isAmericanoCard // ⭐ 프론트에서 분기 처리용 플래그
+                isFixedMenuCard: !!cardConfig // ⭐ 프론트에서 분기 처리용 플래그
               });
 
             } catch (e) {
