@@ -15,7 +15,7 @@ export const hoverify = (base, hover) => ({
 });
 
 // ====== 1. 홈 화면 (ScreenHome) ======
-export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
+export function ScreenHome({ onCategorySelect, status }) {
   // ★ Backend API의 카테고리 ID와 UI를 매핑합니다.
   const categories = [
     { id: 'coffee', label: '커피', icon: '☕🥐🧁' },
@@ -37,31 +37,7 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
         <div style={{ fontSize: 40, fontWeight: 800, color: '#0f7132', marginBottom: 8 }}>환영합니다 😊</div>
         <div style={{ fontSize: 32, fontWeight: 800, color: '#111827' }}>원하는 메뉴를 선택해주세요</div>
         <div style={{ marginTop: 14, fontSize: 16, color: '#6b7280' }}>{status || "화면을 터치하거나 카드를 태그하세요"}</div>
-
-
-        {/* 👇 [NEW] 테스트용 가상 태그 버튼 */}
-        <div style={{ marginTop: 20 }}>
-          <button 
-            onClick={onDebugClick}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#ef4444', 
-              color: 'white',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 14,
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              opacity: 0.8,
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-            }}
-            {...hoverify('#ef4444', '#dc2626')}
-          >
-            🛠️ (TEST) 가상 NFC 태그
-          </button>
-        </div>
       </div>
-
 
       <div style={{ flex: 1, padding: '0 50px 50px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 30, maxWidth: 1000, width: '100%' }}>
