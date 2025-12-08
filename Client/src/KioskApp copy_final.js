@@ -475,11 +475,10 @@ export default function KioskApp() {
   }
 
   if (screen === 'done') {
-    return (
+  return (
     <ScreenDone
-    orderNumber={orderNumber}      // 주문번호
-    onReset={handleDoneReset}      // 처음으로
-    enableStamp={isSingleFlow}     // ✅ 단일메뉴 NFC일 때만 도장/전화번호 화면 활성화
+      orderNumber={orderNumber}   // ✅ 현재 주문번호 표시
+      onReset={handleDoneReset}   // ✅ 완료화면 닫힐 때 번호 +1
     />
   );
 }

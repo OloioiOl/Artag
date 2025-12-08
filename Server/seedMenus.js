@@ -26,6 +26,8 @@ const MENUS = [
   { id: 'mocha', name: '카페 모카', price: 5800, emoji: '🍫', category: 'coffee' },
   { id: 'coldbrew', name: '콜드브루', price: 5200, emoji: '🧊', category: 'coffee' },
   { id: 'espresso', name: '에스프레소', price: 4000, emoji: '☕️', category: 'coffee' },
+  // test 물
+  { id: 'water', name: '물', price: 4000, emoji: '☕️', category: 'coffee' },
 
   // 🍹 BEVERAGE (Non-Coffee, Ade, Tea)
   { id: 'choco_latte', name: '초코 라떼', price: 5500, emoji: '🍫', category: 'beverage' },
