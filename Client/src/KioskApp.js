@@ -314,14 +314,23 @@ export default function KioskApp() {
   
   if (screen === 'nfc') {
     let displayData = [];
+    let recommendTextMode = null; 
     if (selectedCategory === 'recommend') {
       if (top3 && top3.length > 0) {
         displayData = top3.map(t => {
           const original = menus.find(m => m.id === t.menu_id) || {};
           return { ...original, ...t };
         });
+        recommendTextMode = 'personal';  // ⭐ 자주 드시던 메뉴 모드
       } else {
-        displayData = menus; 
+        // ⭐ [변경 후] 추천 버튼만 눌렀을 때: 3개만 보여주기
+        const RECOMMEND_NAMES = ['아메리카노', '카페라떼', '카푸치노'];
+
+        // 이름 기준으로 메뉴 객체 찾아서, 순서도 고정
+        displayData = RECOMMEND_NAMES
+          .map((name) => menus.find((m) => m.name === name))
+          .filter(Boolean); // 혹시 없는 메뉴는 제거
+           recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
       }
     } else {
       displayData = menus.filter(m => m.category === selectedCategory);
@@ -331,6 +340,7 @@ export default function KioskApp() {
       <ScreenMenu 
         items={displayData}
         isRecommendMode={selectedCategory === 'recommend'}
+        recommendTextMode={recommendTextMode}    // ⭐ 새 props 전달
         onSelect={(id) => { setSelectedId(id); setScreen('confirm'); }} 
         onBack={handleLogout}         
         onOrderOther={handleOrderOther}

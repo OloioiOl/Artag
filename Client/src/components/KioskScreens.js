@@ -259,7 +259,12 @@ export function ScreenMenu({
   onBack,
   onOrderOther,
   isRecommendMode,
+  recommendTextMode,           // ⭐ 추가
 }) {
+  // ⭐ 추가: 추천 모드에 따른 타입 구분
+  const mode = recommendTextMode || 'personal';
+  const isTodayRecommend = isRecommendMode && mode === 'today';
+  const isPersonalRecommend = isRecommendMode && mode === 'personal';
   return (
     <div
       style={{
@@ -315,9 +320,13 @@ export function ScreenMenu({
               fontWeight: 'bold',
             }}
           >
-            {isRecommendMode
-              ? '자주 드시던 메뉴를 준비했어요 😊'
-              : '메뉴를 선택해주세요'}
+            {isRecommendMode ? (
+              isTodayRecommend
+                ? '오늘의 추천 메뉴입니다 ☕'          // ⭐ 오늘의 추천
+                : '자주 드시던 메뉴를 준비했어요 😊'   // ⭐ 개인화 추천
+            ) : (
+              '메뉴를 선택해주세요'
+            )}
           </div>
           <div
             style={{
@@ -325,9 +334,13 @@ export function ScreenMenu({
               marginTop: '0.6vh',
             }}
           >
-            {isRecommendMode
-              ? '회원님의 취향을 반영한 추천 메뉴입니다'
-              : '원하는 메뉴를 선택해주세요'}
+            {isRecommendMode ? (
+              isTodayRecommend
+                ? '따뜻하게 즐기기 좋은 오늘의 추천 메뉴 3가지입니다.' // ⭐ 오늘용 문구
+                : '회원님의 취향을 반영한 추천 메뉴입니다'             // 기존 개인화 문구
+            ) : (
+              '원하는 메뉴를 선택해주세요'
+            )}
           </div>
         </div>
 
