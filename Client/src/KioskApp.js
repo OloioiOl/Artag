@@ -8,7 +8,7 @@ import {
   ScreenConfirm,
   ScreenOptions,
   ScreenAdvOptions,
-  ScreenFinalConfirm,   // ✅ 새로 추가
+  ScreenFinalConfirm,   
   ScreenPayment,
   ScreenCard,
   ScreenMobile,
@@ -57,8 +57,6 @@ export default function KioskApp() {
   // 주문번호
   const [orderNumber, setOrderNumber] = useState(220);
 
-  // 대기용
-  const [pendingMenuTag, setPendingMenuTag] = useState(null);
 
   console.log("🟢 KioskApp 렌더, 현재 screen =", screen);
 
@@ -78,7 +76,7 @@ export default function KioskApp() {
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
-  // ✅ 수정 버전
+  // 수정 버전
   const handleCartCheckout = (dineType) => {
     if (cart.length === 0) {
       alert("장바구니에 담긴 메뉴가 없습니다.");
@@ -100,7 +98,7 @@ export default function KioskApp() {
 
     setIsSingleFlow(true);                         // 단일메뉴 NFC 플로우
     setPayMethod('card');                          // 결제수단 카드로 고정
-    setScreen('card');                             // ✅ 바로 카드 결제 화면으로 이동
+    setScreen('card');                             // 바로 카드 결제 화면으로 이동
   };
 
 
@@ -109,14 +107,13 @@ export default function KioskApp() {
   useEffect(() => {
     axios.get(`${API_URL}/api/menus`)
       .then(res => {
-        console.log("🔥 [DEBUG] /api/menus 응답:", res.data);  // ✅ 이 줄만 추가
+        console.log("🔥 [DEBUG] /api/menus 응답:", res.data);  
         setMenus(res.data);
       })
       .catch(err => console.error("메뉴 로딩 실패:", err));
   }, []);
 
 
-  // ====== 2. 소켓 연결 (NFC) ======
   // ====== 2. 소켓 연결 (NFC) ======
   useEffect(() => {
     const socket = io(API_URL);
@@ -134,15 +131,15 @@ export default function KioskApp() {
         setCurrentUid(data.uid);
 
         setSelectedCategory("recommend");
-       // ✅ 개인화 모드로 전환할 때는
-       //    단일메뉴 플로우/장바구니 상태를 모두 초기화하고
-       //    무조건 개인화 메뉴 화면으로 보낸다.
+       // 개인화 모드로 전환할 때는
+       // 단일메뉴 플로우/장바구니 상태를 모두 초기화하고
+       // 무조건 개인화 메뉴 화면으로 보냄
         setIsSingleFlow(false);
         setCart([]);
         setScreen("nfc");
 
         setStatus(`${data.uid}님, 환영합니다!`);
-        return; // 여기서 끝
+        return; 
       }
 
 
@@ -150,17 +147,18 @@ export default function KioskApp() {
       if (type === "TAG_MENU" || type === "MENU") {
         console.log("👉 TAG_MENU 분기 진입");
 
-        // 메뉴가 아직 안 불러졌으면 방어
         if (menus.length === 0) {
           console.warn("⏳ 메뉴 데이터 로딩 중입니다. 잠시 후 다시 시도해주세요.");
           return;
         }
 
-        const menuId = data.menu_id; // 예: "coldbrew"
+        // 서버가 fixed_menu_id 를 menu_id 로 보내줌
+        const menuId = data.menu_id; // 예: "peppermint"
         console.log("단일 메뉴 카드 menuId:", menuId);
         console.log("현재 메뉴 ID 목록:", menus.map(m => m.id));
 
-        const found = menus.find((m) => m.id === menuId);
+        // menus 컬렉션의 m.id 와 fixed_menu_id 가 같아야 함
+        const found = menus.find(m => m.id === menuId);
 
         if (!found) {
           console.warn("❌ 단일 메뉴 카드에 해당하는 메뉴를 찾지 못했습니다:", menuId);
@@ -168,20 +166,23 @@ export default function KioskApp() {
           return;
         }
 
+        // fixed_options → socket 에서 options 로 넘어오므로 여기서 한 번에 처리
+        const opt = data.options || data.fixed_options || {};
+
         const baseOptions = {
-          temp: data.options?.temp || "ice",
-          size: data.options?.size || "basic",
-          shot: data.options?.shot || 2,
-          milk: data.options?.milk || "regular",
+          temp: opt.temp || "ice",
+          size: opt.size || "basic",
+          shot: typeof opt.shot === "number" ? opt.shot : 2,
+          milk: opt.milk || "regular",
         };
 
         setIsSingleFlow(true);
         setCurrentUid("GUEST");
 
-        setCart((prev) => {
-          const existing = prev.find((item) => item.id === menuId);
+        setCart(prev => {
+          const existing = prev.find(item => item.id === menuId);
           if (existing) {
-            return prev.map((item) =>
+            return prev.map(item =>
               item.id === menuId ? { ...item, qty: item.qty + 1 } : item
             );
           }
@@ -191,13 +192,13 @@ export default function KioskApp() {
               id: menuId,
               menu: found,
               qty: 1,
-              options: baseOptions,
+              options: baseOptions,   // ← 여기로 hot/ice, size, shot, milk 들어감
             },
           ];
         });
 
         console.log("🟢 setScreen('cart') 호출!");
-        setScreen("cart");          // ✅ 여기서 화면을 cart 로 강제 변경
+        setScreen("cart");      
         setStatus("메뉴 카드가 인식되었습니다.");
         return;
       }
@@ -207,7 +208,7 @@ export default function KioskApp() {
     });
 
     return () => socket.disconnect();
-  }, [menus, screen]);   // menus, screen 둘 다 의존성에 넣자
+  }, [menus, screen]);   // menus, screen 둘 다 의존성
 
 
 
@@ -273,12 +274,12 @@ export default function KioskApp() {
     setFinalPrice(null);
 
 
-    // ✅ 단일메뉴 / 장바구니 상태도 같이 초기화
+    // 단일메뉴 / 장바구니 상태도 같이 초기화
     setIsSingleFlow(false);
     setCart([]);
   };
 
-  // ✅ 완료 화면에서 10초 후 / “처음으로” 눌렀을 때 호출
+  // 완료 화면에서 10초 후 / “처음으로” 눌렀을 때 호출
   const handleDoneReset = () => {
     setOrderNumber(prev => prev + 1);  // 주문번호 220 → 221 → 222 …
     handleLogout();                    // 화면/옵션 전체 초기화
@@ -296,7 +297,8 @@ export default function KioskApp() {
   };
 
   const handleDirectOrder = () => {
-    setScreen('payment'); 
+    setPayMethod('card');   // 결제수단 상태 카드로 고정
+    setScreen('card'); 
   };
 
 
@@ -355,7 +357,11 @@ export default function KioskApp() {
         temp={temp} 
         cup={cup}
         onDirectOrder={handleDirectOrder} 
-        onChangeOptions={() => setScreen('options')} 
+        onChangeOptions={() => setScreen('options')}
+        onChangeMenu={() => {
+        setSelectedId(null);   
+        setScreen('nfc');       
+        }}
       />
     );
   }
@@ -368,7 +374,7 @@ export default function KioskApp() {
         dine={dine} setDine={setDine}
         setCup={setCup}
         onOrder={() => setScreen('finalConfirm')}    // 기본 옵션만 쓰고 바로 결제
-        onMoreOptions={() => setScreen('advOptions')} // ✅ 고급 옵션으로
+        onMoreOptions={() => setScreen('advOptions')} // 고급 옵션으로
         onBack={() => setScreen('confirm')}
       />
     );
@@ -385,7 +391,7 @@ export default function KioskApp() {
         onCancel={() => setScreen('options')}
         onApply={(total) => {
           setFinalPrice(total);
-          setScreen('finalConfirm');        // ✅ 최종 확인 화면으로 이동
+          setScreen('finalConfirm');        // 최종 확인 화면으로 이동
         }}
       />
     );
@@ -419,10 +425,10 @@ export default function KioskApp() {
       shot={shot}
       milk={milk}
 
-      // ✅ 그대로 주문하기 → 바로 카드 결제 화면으로
+      // 그대로 주문하기 → 바로 카드 결제 화면으로
       onDirectOrder={() => {
-        setPayMethod('card');   // 결제 방식 상태도 카드로 고정
-        setScreen('card');      // ScreenCard 로 바로 이동
+        setPayMethod('card');   
+        setScreen('card');      
       }}
 
       // 온도·포장 바꾸기 → 기본 옵션 화면으로
@@ -441,12 +447,18 @@ export default function KioskApp() {
 
   if (screen === 'payment') {
     return (
-      <ScreenPayment 
+      <ScreenPayment
         onSelectCard={() => { setPayMethod('card'); setScreen('card'); }}
         onSelectMobile={() => { setPayMethod('mobile'); setScreen('mobile'); }}
+
+        // ✅ 결제수단 선택 화면의 "취소하기" → 3번 화면으로
+        onCancel={() => setScreen('confirm')}
+        // 혹시 컴포넌트에서 이름을 onBack 으로 쓰고 있으면:
+        // onBack={() => setScreen('confirm')}
       />
     );
   }
+
 
   if (screen === 'card') {
     return (
@@ -455,13 +467,25 @@ export default function KioskApp() {
         onProcess={() => setScreen('processing')}
         onBack={() => setScreen('payment')}
         onShowOrder={() => {
-          // 단일메뉴 NFC → 장바구니 / 개인화 NFC → 기존 최종확인 화면
-          if (isSingleFlow) setScreen('cart');
-          else setScreen('finalConfirm');
+          if (isSingleFlow) {
+            setScreen('cart');        // 단일메뉴 NFC는 장바구니로
+          } else {
+            setScreen('finalConfirm'); // 개인화/일반 플로우는 최종확인으로
+          }
+        }}
+        onCancel={() => {
+          if (isSingleFlow) {
+            setScreen('cart');        // 단일메뉴 NFC일 땐 그대로 장바구니로
+          } else {
+            setScreen('confirm');     // 일반 플로우에선 3번 "선택한 메뉴" 화면으로
+          }
         }}
       />
     );
   }
+
+
+
 
 
   if (screen === 'mobile') {
@@ -470,29 +494,52 @@ export default function KioskApp() {
         payAmount={finalPrice ?? (selectedMenu?.price || 0)}
         onProcess={() => setScreen('processing')}
         onBack={() => setScreen('payment')}
-        onShowOrder={() => setScreen('finalConfirm')}
+        onShowOrder={() => {
+          if (isSingleFlow) {
+            setScreen('cart');          // 단일메뉴 NFC → 장바구니
+          } else {
+            setScreen('finalConfirm'); // 일반 → 최종 확인
+          }
+        }}
+        onCancel={() => {
+          if (isSingleFlow) {
+            setScreen('cart');          // 단일메뉴 NFC → 장바구니
+          } else {
+            setScreen('confirm');       // 일반 → 3번 "선택한 메뉴 화면"
+          }
+        }}
       />
     );
   }
+
+
+
 
     if (screen === 'processing') {
+      return (
+        <ScreenProcessing
+          payMethod={payMethod}
+          onCancel={() => setScreen('confirm')}   // 3번 메뉴 확인 화면으로 이동
+        />
+      );
+    }
+
+
+  if (screen === 'done') {
+  // 스탬프를 허용할 조건:
+  // 1) 단일메뉴 NFC 플로우(isSingleFlow === true)
+  // 2) NFC를 전혀 안 쓰고 일반 주문한 경우(currentUid === null)
+    const shouldEnableStamp = isSingleFlow || !currentUid;
+
     return (
-      <ScreenProcessing
-        payMethod={payMethod}
-        onCancel={() => setScreen('payment')}
+      <ScreenDone
+        orderNumber={orderNumber}
+        onReset={handleDoneReset}
+        enableStamp={shouldEnableStamp}
       />
     );
   }
 
-  if (screen === 'done') {
-    return (
-    <ScreenDone
-    orderNumber={orderNumber}      // 주문번호
-    onReset={handleDoneReset}      // 처음으로
-    enableStamp={isSingleFlow}     // ✅ 단일메뉴 NFC일 때만 도장/전화번호 화면 활성화
-    />
-  );
-}
 
 
 
