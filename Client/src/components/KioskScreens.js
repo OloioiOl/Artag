@@ -411,7 +411,9 @@ export function ScreenMenu({
             items.map((item) => {
               const price = item.price || 0;
 
-              const imgFileName = item.images ? item.images.hot : null;
+              const imgFileName = item.images 
+                ? (item.images.hot || item.images.ice || item.images.only) 
+                : null;
               const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
               const name = item.name || '메뉴';
 

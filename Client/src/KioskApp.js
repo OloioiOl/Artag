@@ -353,15 +353,16 @@ export default function KioskApp() {
         });
         recommendTextMode = 'personal';  // ⭐ 자주 드시던 메뉴 모드
       } else {
-        // ⭐ [변경 후] 추천 버튼만 눌렀을 때: 3개만 보여주기
-        const RECOMMEND_NAMES = ['아메리카노', '카페라떼', '카푸치노'];
+      // ⭐ [변경] 이름 대신 ID 목록을 사용 (DB에 저장된 정확한 id 입력 필수)
+      const RECOMMEND_IDS = ['americano', 'latte', 'citron_tea','lemonade','misutgaru','piece_cake','castella','croffle','sandwich'];
 
-        // 이름 기준으로 메뉴 객체 찾아서, 순서도 고정
-        displayData = RECOMMEND_NAMES
-          .map((name) => menus.find((m) => m.name === name))
-          .filter(Boolean); // 혹시 없는 메뉴는 제거
-           recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
-      }
+      // id 기준으로 메뉴 객체 찾아서, 순서도 고정
+      displayData = RECOMMEND_IDS
+        .map((id) => menus.find((m) => m.id === id))
+        .filter(Boolean); // 혹시 ID가 틀려서 못 찾은 경우(undefined) 제거
+        
+      recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
+    }
     } else {
       displayData = menus.filter(m => m.category === selectedCategory);
     }
