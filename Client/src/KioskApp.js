@@ -8,13 +8,15 @@ import {
   ScreenConfirm,
   ScreenOptions,
   ScreenAdvOptions,
-  ScreenFinalConfirm,   // ✅ 새로 추가
+  ScreenFinalConfirm,  
   ScreenPayment,
   ScreenCard,
   ScreenMobile,
   ScreenProcessing,
   ScreenDone,
-  ScreenCart
+  ScreenCart,
+  getPrice, //신규추가
+  calcCartTotal
 } from './components/KioskScreens';
 
 const API_URL = "http://localhost:8080";
@@ -217,13 +219,41 @@ export default function KioskApp() {
   // ====== 3. 주문 전송 로직 ======
   useEffect(() => {
     if (screen === 'processing') {
-      const payload = {
-        uid: currentUid || "GUEST",
-        menuId: selectedId,
-        menuName: selectedMenu ? selectedMenu.name : "알수없음",
-        price: finalPrice ?? (selectedMenu?.price || 0),
-        options: { temp, cup, dine, size, shot, milk }
-      };
+
+      let payload = {};
+
+      if (isSingleFlow) {
+        // ✅ [CASE 1] 장바구니 주문 (NFC 카드 모드)
+        const totalAmount = calcCartTotal(cart);
+        const firstItem = cart[0];
+        
+        // 메뉴 이름을 "아메리카노 외 N건" 형식으로 만듦
+        const summaryName = cart.length > 1 
+          ? `${firstItem.menu.name} 외 ${cart.length - 1}건`
+          : firstItem.menu.name;
+
+        payload = {
+          uid: currentUid || "GUEST", // 보통 GUEST
+          menuId: "CART_ORDER",       // 장바구니 주문임을 표시 (또는 firstItem.id)
+          menuName: summaryName,      // "아메리카노 외 2건"
+          price: totalAmount,         // ✅ 전체 합산 금액 전송!
+          options: { 
+             mode: 'cart_nfc',
+             detail: cart // (선택) 나중에 상세 내역 필요하면 cart 배열 자체를 옵션에 저장
+          }
+        };
+
+      } else {
+        // ✅ [CASE 2] 일반 개별 주문 (기존 로직 유지)
+        const calcPrice = finalPrice ?? getPrice(selectedMenu, temp);
+        payload = {
+          uid: currentUid || "GUEST",
+          menuId: selectedId,
+          menuName: selectedMenu ? selectedMenu.name : "알수없음",
+          price: calcPrice,
+          options: { temp, cup, dine, size, shot, milk }
+        };
+      }
 
       console.log("🚀 주문 전송 중:", payload);
 
@@ -376,9 +406,11 @@ export default function KioskApp() {
 
   // 고급 옵션 (사이즈/샷/우유)
   if (screen === 'advOptions') {
+
     return (
       <ScreenAdvOptions
-        basePrice={selectedMenu?.price || 0}
+        menu={selectedMenu}
+        temp={temp}
         size={size} setSize={setSize}
         shot={shot} setShot={setShot}
         milk={milk} setMilk={setMilk}
@@ -448,10 +480,14 @@ export default function KioskApp() {
     );
   }
 
+ const billPrice = isSingleFlow 
+  ? calcCartTotal(cart) 
+  : (finalPrice ?? getPrice(selectedMenu, temp));
+
   if (screen === 'card') {
     return (
       <ScreenCard
-        payAmount={finalPrice ?? (selectedMenu?.price || 0)}
+        payAmount={billPrice}
         onProcess={() => setScreen('processing')}
         onBack={() => setScreen('payment')}
         onShowOrder={() => {
@@ -467,7 +503,7 @@ export default function KioskApp() {
   if (screen === 'mobile') {
     return (
       <ScreenMobile
-        payAmount={finalPrice ?? (selectedMenu?.price || 0)}
+        payAmount={billPrice}
         onProcess={() => setScreen('processing')}
         onBack={() => setScreen('payment')}
         onShowOrder={() => setScreen('finalConfirm')}

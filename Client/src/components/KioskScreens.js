@@ -2,6 +2,60 @@
 import React, { useEffect, useState } from 'react';
 
 // ====== 유틸 ======
+
+// ✅ 가격 계산 헬퍼 함수
+// 메뉴 객체와 현재 온도(temp)를 받아서 최종 가격을 반환합니다.
+export function getPrice(menu, temp) {
+  if (!menu) return 0;
+  
+  // 1. 기본 가격
+  let finalPrice = menu.price || 0;
+
+  // 2. 변동 가격(var_price)이 있고, 해당 온도(temp)에 설정된 가격이 있다면 덮어씌움
+  if (menu.var_price && menu.var_price[temp]) {
+    finalPrice = menu.var_price[temp];
+  }
+
+  return finalPrice;
+}
+
+// ✅ [신규 추가] 옵션 포함 전체 가격 계산 함수
+export function calcTotalPrice(menu, temp, size, shot, milk) {
+  // 1. 기본 가격 (Hot/Ice 반영)
+  let price = getPrice(menu, temp);
+
+  // 2. 사이즈 옵션
+  if (size === 'big') price += 500;
+  if (size === 'huge') price += 1000;
+
+  // 3. 샷 추가 (기본 2샷 초과 시 500원씩)
+  // shot이 undefined일 수 있으므로 기본값 2 처리
+  const currentShot = shot || 2;
+  const extraShotCost = Math.max(currentShot - 2, 0) * 500;
+  price += extraShotCost;
+
+  // 4. 우유 변경
+  if (milk === 'lowfat') price += 500;
+  if (milk === 'soy') price += 500;
+  if (milk === 'oat') price += 500;
+
+  return price;
+}
+
+// ✅ [신규 추가] 장바구니 총액 계산 함수
+export function calcCartTotal(cart) {
+  if (!cart || cart.length === 0) return 0;
+
+  // 배열을 순회하며 (단가 × 수량)을 모두 더함
+  return cart.reduce((acc, item) => {
+    // 1. 아이템의 온도(temp)에 맞는 단가 가져오기
+    const unitPrice = getPrice(item.menu, item.options.temp || 'hot');
+    
+    // 2. 수량(qty) 곱해서 누적
+    return acc + (unitPrice * item.qty);
+  }, 0);
+}
+
 export function eulReul(word = '') {
   const ch = word.charCodeAt(word.length - 1);
   if (isNaN(ch) || ch < 0xac00 || ch > 0xd7a3) return '를';
@@ -356,7 +410,9 @@ export function ScreenMenu({
           {items && items.length > 0 ? (
             items.map((item) => {
               const price = item.price || 0;
-              const emoji = item.emoji || '☕';
+
+              const imgFileName = item.images ? item.images.hot : null;
+              const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
               const name = item.name || '메뉴';
 
               return (
@@ -371,22 +427,40 @@ export function ScreenMenu({
                     boxShadow: '0 18px 28px rgba(0, 0, 0, 0.25)',
                     cursor: 'pointer',
                     paddingBottom: 16,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems:'center',
                   }}
                 >
                   <div
                     style={{
+                      width:'100%',
                       height: 'clamp(110px, 16vh, 140px)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: 'clamp(52px, 6vw, 72px)',
+                      backgroundColor: '#f9fafb',             // 이미지가 투명할 경우 배경색
+                      marginBottom: 12,
                     }}
                   >
-                    {emoji}
+                    
+                    {imgSrc ? (
+                      <img 
+                        src={imgSrc} 
+                        alt={name} 
+                        style={{ 
+                          width: '100%', height: '100%', 
+                          objectFit: 'contain',}} 
+                      />
+                    ) : (
+                      item.emoji || '☕' 
+                    )}
                   </div>
                   <div
                     style={{
-                      padding: 12,
+                      width: '100%',
+                      padding: '0 12px',
                       textAlign: 'center',
                     }}
                   >
@@ -395,6 +469,7 @@ export function ScreenMenu({
                         color: '#374151',
                         fontSize: 'clamp(14px, 1.6vw, 16px)',
                         fontWeight: 600,
+                        wordBreak: 'keep-all'
                       }}
                     >
                       {name}
@@ -463,6 +538,12 @@ export function ScreenConfirm({ selected, temp, cup, onDirectOrder, onChangeOpti
   const tempColor = temp === 'hot' ? '#FF6B6B' : '#2986FF';
   const name = selected.name || '';
 
+  // temp가 'hot'이면 selected.images.hot을, 'ice'면 selected.images.ice를 가져옴
+  const imgFileName = selected.images ? selected.images[temp] : null;
+  const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
+
+  const curPrice=getPrice(selected,temp);
+
   return (
     <ScaledLayout>
       <div
@@ -482,7 +563,7 @@ export function ScreenConfirm({ selected, temp, cup, onDirectOrder, onChangeOpti
             textAlign: 'center',
           }}
         >
-          {/* 음료 카드 (이모지) */}
+         {/* ⭐️ [수정] 이미지 영역 */}
           <div
             style={{
               width: 420,
@@ -495,9 +576,18 @@ export function ScreenConfirm({ selected, temp, cup, onDirectOrder, onChangeOpti
               justifyContent: 'center',
               fontSize: 160,
               boxShadow: '0 22px 32px rgba(0,0,0,0.15)',
+              overflow: 'hidden', // 이미지가 튀어나가지 않게
             }}
           >
-            {selected.emoji || '🍹'}
+            {imgSrc ? (
+              <img 
+                src={imgSrc} 
+                alt={name}
+                style={{ width: '80%', height: '80%', objectFit: 'contain' }} 
+              />
+            ) : (
+              selected.emoji || '🍹'
+            )}
           </div>
 
           {/* 문장 1줄 + 1줄 */}
@@ -523,6 +613,10 @@ export function ScreenConfirm({ selected, temp, cup, onDirectOrder, onChangeOpti
             }}
           >
             {cupLabel}으로 준비해드릴까요?
+            {/* ✅ [신규 추가] 가격 표시 */}
+            <div style={{ color: '#0f7132', marginTop: 16, fontSize: 48, fontWeight: 900 }}>
+               {curPrice.toLocaleString()}원
+            </div>
           </div>
 
           {/* 그대로 주문하기 – 넓은 초록 버튼 */}
@@ -861,7 +955,8 @@ export function ScreenOptions({
  * 4-B. 고급 옵션 화면 (사이즈/샷/우유/합계)
  * ------------------------------------------------- */
 export function ScreenAdvOptions({
-  basePrice = 0,
+  menu,
+  temp,
   size,
   setSize,
   shot,
@@ -917,23 +1012,7 @@ export function ScreenAdvOptions({
     gap: 4,
   });
 
-  const calcTotal = () => {
-    let price = basePrice || 0;
-
-    const extraShotCost = Math.max(shot - 2, 0) * 500;
-    price += extraShotCost;
-
-    if (size === 'big') price += 500;
-    if (size === 'huge') price += 1000;
-
-    if (milk === 'lowfat') price += 500;
-    if (milk === 'soy') price += 500;
-    if (milk === 'oat') price += 500;
-
-    return price;
-  };
-
-  const totalPrice = calcTotal();
+  const totalPrice=calcTotalPrice(menu, temp, size, shot, milk);
 
   return (
     <ScaledLayout>
@@ -1249,6 +1328,12 @@ export function ScreenFinalConfirm({
 
   const optionLine = `옵션: ${sizeLabel} / ${shotLabel} / ${milkLabel}`;
 
+  // ⭐️ [핵심 로직] 여기도 똑같이 적용!
+  const imgFileName = selected.images ? selected.images[temp] : null;
+  const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
+
+  const curPrice=calcTotalPrice(selected,temp,size,shot,milk);
+
   return (
     <ScaledLayout>
       <div
@@ -1268,7 +1353,7 @@ export function ScreenFinalConfirm({
             textAlign: 'center',
           }}
         >
-          {/* 음료 카드 (이미지/이모지) */}
+          {/* ⭐️ [수정] 이미지 영역 */}
           <div
             style={{
               width: 420,
@@ -1281,9 +1366,18 @@ export function ScreenFinalConfirm({
               justifyContent: 'center',
               fontSize: 160,
               boxShadow: '0 22px 32px rgba(0,0,0,0.15)',
+              overflow: 'hidden',
             }}
           >
-            {selected.emoji || '🍹'}
+            {imgSrc ? (
+              <img 
+                src={imgSrc} 
+                alt={name}
+                style={{ width: '80%', height: '80%', objectFit: 'contain' }} 
+              />
+            ) : (
+              selected.emoji || '🍹'
+            )}
           </div>
 
           {/* 메인 문장 */}
@@ -1319,6 +1413,11 @@ export function ScreenFinalConfirm({
             }}
           >
             {optionLine}
+          </div>
+
+          {/* ✅ [신규 추가] 최종 가격 표시 (버튼 바로 위) */}
+          <div style={{ marginTop: 30, fontSize: 50, fontWeight: 900, color: '#0f7132' }}>
+            총 {curPrice.toLocaleString()}원
           </div>
 
           {/* 그대로 주문하기 */}
@@ -2813,6 +2912,14 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
     options?.temp === "hot" ? "🔥 따뜻한" : "❄️ 차가운";
   const badgeColor = options?.temp === "hot" ? "#ef4444" : "#2563eb";
 
+  // 장바구니에 담긴 옵션(options.temp)에 맞는 이미지를 가져옵니다.
+  const currentTemp = options?.temp || 'hot'; 
+  const imgFileName = menu.images ? menu.images[currentTemp] : null;
+  const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
+
+  // [추가] 가격 계산 로직 (여기가 핵심!)
+  const displayPrice = getPrice(menu, currentTemp);
+
   return (
     <div
       style={{
@@ -2841,6 +2948,7 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
           borderRadius: 14,
           fontSize: 16,
           fontWeight: 700,
+          zIndex: 10,
         }}
       >
         {tempBadge}
@@ -2865,9 +2973,18 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
             alignItems: "center",
             justifyContent: "center",
             fontSize: 36,
+            overflow: "hidden"
           }}
         >
-          {menu.emoji || "☕"}
+          {imgSrc ? (
+            <img 
+              src={imgSrc} 
+              alt={menu.name} 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          ) : (
+            menu.emoji || "☕"
+          )}
         </div>
 
         <div
@@ -2876,12 +2993,15 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
             flexDirection: "column",
             justifyContent: "center",
             gap: 8,
+            flex: 1,
           }}
         >
           <div
             style={{
               fontSize: 24,
               fontWeight: 900,
+              wordBreak: 'keep-all',
+              LineHeight: 1.2,
             }}
           >
             {menu.name}
@@ -2893,7 +3013,7 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
               fontWeight: 800,
             }}
           >
-            {menu.price.toLocaleString()}원
+            {displayPrice.toLocaleString()}원 {/* 가격 수정 */}
           </div>
         </div>
       </div>
