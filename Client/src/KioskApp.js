@@ -1,5 +1,5 @@
 /* src/KioskApp.js */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 import { 
@@ -24,6 +24,8 @@ const API_URL = "http://localhost:8080";
 export default function KioskApp() {
   // 단일 메뉴 NFC 전용 플로우인지 여부
   const [isSingleFlow, setIsSingleFlow] = useState(false);
+
+  const lastTagTime = useRef(0);
 
   // 장바구니 (단일 메뉴 카드용)
   const [cart, setCart] = useState([]); 
@@ -128,6 +130,13 @@ export default function KioskApp() {
       console.log("현재 screen(before) =", screen);
 
       const { type } = data;
+
+      const now = Date.now();
+      if (now - lastTagTime.current < 400) {
+        console.log("⏳ 너무 빠른 태그 감지됨 - 무시");
+        return;
+      }
+      lastTagTime.current = now; // 태그 시간 갱신
 
       // [CASE A] 일반 회원 태그 (개인화 NFC)
             // [CASE A] 일반 회원 태그 (개인화 NFC)
@@ -361,7 +370,7 @@ export default function KioskApp() {
         recommendTextMode = 'personal';  // ⭐ 자주 드시던 메뉴 모드
       } else {
       // ⭐ [변경] 이름 대신 ID 목록을 사용 (DB에 저장된 정확한 id 입력 필수)
-      const RECOMMEND_IDS = ['americano', 'latte', 'citron_tea','lemonade','misutgaru','piece_cake','castella','croffle','sandwich'];
+      const RECOMMEND_IDS = ['americano', 'latte', 'cappuccino'];
 
       // id 기준으로 메뉴 객체 찾아서, 순서도 고정
       displayData = RECOMMEND_IDS
@@ -405,6 +414,7 @@ export default function KioskApp() {
   if (screen === 'options') {
     return (
       <ScreenOptions
+        menu={selectedMenu}
         temp={temp} setTemp={setTemp}
         dine={dine} setDine={setDine}
         setCup={setCup}

@@ -131,9 +131,9 @@ export function ScaledLayout({ children }) {
  * ------------------------------------------------- */
 export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
   const categories = [
-    { id: 'coffee', label: '커피', icon: '☕🥐🧁' },
-    { id: 'beverage', label: '음료', icon: '🥤🧃🍹' },
-    { id: 'dessert', label: '빵 / 디저트', icon: '🍰🧁🥐' },
+    { id: 'coffee', label: '커피', image:'/coffee.png' },
+    { id: 'beverage', label: '음료', image: '/beverage.png' },
+    { id: 'dessert', label: '빵 / 디저트', image:'/dessert.png' },
     { id: 'recommend', label: '추천 메뉴', icon: '⭐✨🌟' },
   ];
 
@@ -228,7 +228,7 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
             {status || '화면을 터치하거나 카드를 태그하세요'}
           </div>
 
-          {onDebugClick && (
+          {/*{onDebugClick && (
             <div style={{ marginTop: 16 }}>
               <button
                 onClick={onDebugClick}
@@ -249,7 +249,7 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
                 🛠️ (TEST) 가상 NFC 태그
               </button>
             </div>
-          )}
+          )}*/}
         </div>
 
         {/* 카테고리 4개 */}
@@ -292,7 +292,29 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
                 }}
                 {...hoverify('#0A400C', '#0b5a27')}
               >
-                <div style={{ fontSize: 76 }}>{cat.icon}</div>
+                {cat.image ? (
+                  <div style={{
+                    width: '160px',       // 흰색 원 지름
+                    height: '160px',
+                    backgroundColor: 'white',
+                    borderRadius: '50%',  // 원형 만들기
+                    display: 'flex',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    marginBottom: '10px'
+                  }}>
+                    <img 
+                      src={cat.image} 
+                      alt={cat.label} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  </div>
+                ) : (
+                  /* 이미지가 없는 경우 (추천 메뉴 - 이모지 사용) */
+                  <div style={{ fontSize: 76 }}>{cat.icon}</div>
+                )}
+
                 <span
                   style={{
                     fontSize: 52,
@@ -802,6 +824,7 @@ export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChan
  * 4. 기본 옵션 화면 (온도 + 받는 방식)
 * ------------------------------------------------- */
 export function ScreenOptions({
+  menu,
   temp,
   setTemp,
   dine,
@@ -813,7 +836,42 @@ export function ScreenOptions({
 }) {
   const TITLE_FONT_SIZE = 44;
 
-  const makeTempCardStyle = (active, borderColor) => ({
+  const canHot = menu?.images?.hot !== undefined;
+  const canIce = menu?.images?.ice !== undefined;
+
+  // (선택사항) 자동 보정: 진입 시 불가능한 옵션이면 가능한 옵션으로 변경
+  useEffect(() => {
+    if (!canHot && canIce && temp === 'hot') {
+      setTemp('ice'); // Hot 불가능한데 Hot 상태면 Ice로 강제 변경
+    } else if (canHot && !canIce && temp === 'ice') {
+      setTemp('hot'); // 반대의 경우
+    }
+  }, [menu, canHot, canIce, temp, setTemp]);
+
+  const makeTempCardStyle = (active, borderColor,isAvailable) => {
+    if (!isAvailable) {
+      return {
+        width: 350,
+        height: 240,
+        borderRadius: 32,
+        border: '4px solid #E5E7EB',    // 연한 회색 테두리
+        backgroundColor: '#F3F4F6',     // 연한 회색 배경
+        color: '#9CA3AF',               // 텍스트 회색
+        boxShadow: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+        fontSize: 44,
+        fontWeight: 800,
+        gap: 10,
+        cursor: 'not-allowed',          // 금지 커서
+        opacity: 0.6,
+      };
+    }
+
+    return {
     width: 350,
     height: 240,
     borderRadius: 32,
@@ -831,7 +889,8 @@ export function ScreenOptions({
     fontSize: 44,
     fontWeight: 800,
     gap: 10,
-  });
+    };
+  };
 
   const makeDineCardStyle = (active) => ({
     width: 350,
@@ -898,19 +957,29 @@ export function ScreenOptions({
             >
               {/* 차갑게 */}
               <button
-                onClick={() => setTemp('ice')}
-                style={makeTempCardStyle(temp === 'ice', '#0B51FF')}
+                onClick={() => {
+                  if (canIce) setTemp('ice'); // 👈 가능할 때만 변경
+                }}
+                style={makeTempCardStyle(temp === 'ice', '#0B51FF',canIce)}
               >
-                <div style={{ fontSize: 70 }}>🧊</div>
+                <div style={{ fontSize: 70,
+                              filter: canIce ? 'none' : 'grayscale(100%)', 
+                              opacity: canIce ? 1 : 0.3
+                            }}>🧊</div>
                 <div>차갑게</div>
               </button>
 
               {/* 따뜻하게 */}
               <button
-                onClick={() => setTemp('hot')}
-                style={makeTempCardStyle(temp === 'hot', '#F15151')}
+                onClick={() => {
+                   if (canHot) setTemp('hot'); // 👈 가능할 때만 변경
+                }}
+                style={makeTempCardStyle(temp === 'hot', '#F15151',canHot)}
               >
-                <div style={{ fontSize: 70 }}>🔥</div>
+                <div style={{ fontSize: 70,
+                              filter: canHot ? 'none' : 'grayscale(100%)', 
+                              opacity: canHot ? 1 : 0.3
+                            }}>🔥</div>
                 <div>따뜻하게</div>
               </button>
             </div>
@@ -2834,7 +2903,7 @@ export function ScreenCart({
           >
             {currentItems.map((item) => (
               <CartItemCard
-                key={item.id}
+                key={item.CartId}
                 item={item}
                 onQtyChange={onQtyChange}
                 onRemove={onRemove}
@@ -3260,7 +3329,7 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
         }}
       >
         <button
-          onClick={() => onQtyChange(item.id, -1)}
+          onClick={() => onQtyChange(item.cartId, -1)}
           style={{
             width: 120,
             height: 70,
@@ -3287,7 +3356,7 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
         </div>
 
         <button
-          onClick={() => onQtyChange(item.id, +1)}
+          onClick={() => onQtyChange(item.cartId, +1)}
           style={{
             width: 120,
             height: 70,
@@ -3307,7 +3376,7 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
       {/* 삭제 버튼 */}
       <div style={{ marginTop: 'auto' }}>
         <button
-          onClick={() => onRemove(item.id)}
+          onClick={() => onRemove(item.cartId)}
           style={{
             width: '100%',
             height: 72,
