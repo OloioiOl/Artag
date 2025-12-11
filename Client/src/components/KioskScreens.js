@@ -1,5 +1,6 @@
 /* src/components/KioskScreens.js */
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // ====== 유틸 ======
 
@@ -586,7 +587,8 @@ export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChan
   const name = selected.name || '';
 
   // temp가 'hot'이면 selected.images.hot을, 'ice'면 selected.images.ice를 가져옴
-  const imgFileName = selected.images ? selected.images[temp] : null;
+  const imgFileName = selected.images 
+  ? (selected.images[temp] || selected.images.only) : null
   const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
 
   const curPrice=getPrice(selected,temp);
@@ -849,7 +851,7 @@ export function ScreenOptions({
     paddingLeft: 40,
     paddingRight: 40,
     cursor: 'pointer',
-    fontSize: 28,
+    fontSize: 44,
     fontWeight: 800,
     gap: 10,
   });
@@ -1434,7 +1436,8 @@ export function ScreenFinalConfirm({
 
   const optionLine = `옵션: ${sizeLabel} / ${shotLabel} / ${milkLabel}`;
 
-  const imgFileName = selected.images ? selected.images[temp] : null;
+  const imgFileName = selected.images 
+  ? (selected.images[temp] || selected.images.only)  : null;
   const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
 
   const curPrice=calcTotalPrice(selected,temp,size,shot,milk);
@@ -2427,7 +2430,6 @@ function StampPortal({
   stampStep,
   setStampStep,
   phoneNumber,
-  createPortal,
   setPhoneNumber,
   formatPhoneNumber,
   handleNumClick,
@@ -2679,7 +2681,6 @@ export function ScreenCart({
   onQtyChange,
   onRemove,
   onReset,
-  createPortal,
   onCheckout, // 받을 방법 선택 후 결제 진행
 }) {
   const [currentPage, setCurrentPage] = useState(0);
@@ -2694,7 +2695,7 @@ export function ScreenCart({
   const currentItems = cart.slice(startIdx, endIdx);
 
   const showPlusBox =
-    currentItems.length < itemsPerPage || endIdx >= cart.length;
+    currentItems.length < itemsPerPage;
 
   const handlePrevPage = () => {
     if (currentPage > 0) setCurrentPage((p) => p - 1);
@@ -3142,7 +3143,8 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
 
   // 장바구니에 담긴 옵션(options.temp)에 맞는 이미지를 가져옵니다.
   const currentTemp = options?.temp || 'hot'; 
-  const imgFileName = menu.images ? menu.images[currentTemp] : null;
+  const imgFileName = menu.images 
+  ? (menu.images[currentTemp] || menu.images.only) : null;
   const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
 
   // [추가] 가격 계산 로직 (여기가 핵심!)

@@ -66,18 +66,18 @@ export default function KioskApp() {
 
 
   // ====== 장바구니 핸들러 ======
-  const handleCartQtyChange = (id, delta) => {
+  const handleCartQtyChange = (cartId, delta) => {
     setCart(prev =>
       prev.map(item =>
-        item.id === id
+        item.cartId === cartId
           ? { ...item, qty: Math.max(1, item.qty + delta) }
           : item
       )
     );
   };
 
-  const handleCartRemove = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
+  const handleCartRemove = (cartId) => {
+    setCart(prev => prev.filter(item => item.cartId !== cartId));
   };
 
   // ✅ 수정 버전
@@ -170,26 +170,32 @@ export default function KioskApp() {
           return;
         }
 
+        const opt = data.options || data.fixed_options || {};
+
         const baseOptions = {
-          temp: data.options?.temp || "ice",
-          size: data.options?.size || "basic",
-          shot: data.options?.shot || 2,
-          milk: data.options?.milk || "regular",
+          temp: opt.temp || "ice",
+          size: opt.size || "basic",
+          shot: typeof opt.shot === "number" ? opt.shot : 2,
+          milk: opt.milk || "regular",
         };
 
         setIsSingleFlow(true);
         setCurrentUid("GUEST");
 
         setCart((prev) => {
-          const existing = prev.find((item) => item.id === menuId);
+          const existing = prev.find((item) =>
+            item.id === menuId &&
+            JSON.stringify(item.options) === JSON.stringify(baseOptions)
+          );
           if (existing) {
             return prev.map((item) =>
-              item.id === menuId ? { ...item, qty: item.qty + 1 } : item
+              item.cartId === existing.cartId ? { ...item, qty: item.qty + 1 } : item
             );
           }
           return [
             ...prev,
             {
+              cartId: Date.now() + Math.random(),
               id: menuId,
               menu: found,
               qty: 1,
@@ -326,7 +332,8 @@ export default function KioskApp() {
   };
 
   const handleDirectOrder = () => {
-    setScreen('payment'); 
+    setScreen('card');
+    setPayMethod('card'); 
   };
 
 
@@ -360,8 +367,7 @@ export default function KioskApp() {
       displayData = RECOMMEND_IDS
         .map((id) => menus.find((m) => m.id === id))
         .filter(Boolean); // 혹시 ID가 틀려서 못 찾은 경우(undefined) 제거
-        
-      recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
+        recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
     }
     } else {
       displayData = menus.filter(m => m.category === selectedCategory);
@@ -387,6 +393,10 @@ export default function KioskApp() {
         cup={cup}
         onDirectOrder={handleDirectOrder} 
         onChangeOptions={() => setScreen('options')} 
+        onChangeMenu={() => {
+        setSelectedId(null);   
+        setScreen('nfc');    
+        }}   
       />
     );
   }
