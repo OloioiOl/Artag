@@ -477,6 +477,11 @@ export default function KioskApp() {
       <ScreenPayment 
         onSelectCard={() => { setPayMethod('card'); setScreen('card'); }}
         onSelectMobile={() => { setPayMethod('mobile'); setScreen('mobile'); }}
+
+        // ✅ 결제수단 선택 화면의 "취소하기" → 3번 화면으로
+        onCancel={() => setScreen('confirm')}
+        // 혹시 컴포넌트에서 이름을 onBack 으로 쓰고 있으면:
+        // onBack={() => setScreen('confirm')}
       />
     );
   }
@@ -496,6 +501,13 @@ export default function KioskApp() {
           if (isSingleFlow) setScreen('cart');
           else setScreen('finalConfirm');
         }}
+        onCancel={() => {
+          if (isSingleFlow) {
+            setScreen('cart');        // 단일메뉴 NFC일 땐 그대로 장바구니로
+          } else {
+            setScreen('confirm');     // 일반 플로우에선 3번 "선택한 메뉴" 화면으로
+          }
+        }}
       />
     );
   }
@@ -504,10 +516,23 @@ export default function KioskApp() {
   if (screen === 'mobile') {
     return (
       <ScreenMobile
-        payAmount={billPrice}
+        payAmount={finalPrice ?? (selectedMenu?.price || 0)}
         onProcess={() => setScreen('processing')}
         onBack={() => setScreen('payment')}
-        onShowOrder={() => setScreen('finalConfirm')}
+        onShowOrder={() => {
+          if (isSingleFlow) {
+            setScreen('cart');          // 단일메뉴 NFC → 장바구니
+          } else {
+            setScreen('finalConfirm'); // 일반 → 최종 확인
+          }
+        }}
+        onCancel={() => {
+          if (isSingleFlow) {
+            setScreen('cart');          // 단일메뉴 NFC → 장바구니
+          } else {
+            setScreen('confirm');       // 일반 → 3번 "선택한 메뉴 화면"
+          }
+        }}
       />
     );
   }
@@ -516,20 +541,25 @@ export default function KioskApp() {
     return (
       <ScreenProcessing
         payMethod={payMethod}
-        onCancel={() => setScreen('payment')}
+        onCancel={() => setScreen('confirm')}
       />
     );
   }
 
   if (screen === 'done') {
+  // 스탬프를 허용할 조건:
+  // 1) 단일메뉴 NFC 플로우(isSingleFlow === true)
+  // 2) NFC를 전혀 안 쓰고 일반 주문한 경우(currentUid === null)
+    const shouldEnableStamp = isSingleFlow || !currentUid;
+
     return (
-    <ScreenDone
-    orderNumber={orderNumber}      // 주문번호
-    onReset={handleDoneReset}      // 처음으로
-    enableStamp={isSingleFlow}     // ✅ 단일메뉴 NFC일 때만 도장/전화번호 화면 활성화
-    />
-  );
-}
+      <ScreenDone
+        orderNumber={orderNumber}
+        onReset={handleDoneReset}
+        enableStamp={shouldEnableStamp}
+      />
+    );
+  }
 
 
 
