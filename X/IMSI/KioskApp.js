@@ -1,5 +1,5 @@
 /* src/KioskApp.js */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 import { 
@@ -24,8 +24,6 @@ const API_URL = "http://localhost:8080";
 export default function KioskApp() {
   // 단일 메뉴 NFC 전용 플로우인지 여부
   const [isSingleFlow, setIsSingleFlow] = useState(false);
-
-  const lastTagTime = useRef(0);
 
   // 장바구니 (단일 메뉴 카드용)
   const [cart, setCart] = useState([]); 
@@ -68,18 +66,18 @@ export default function KioskApp() {
 
 
   // ====== 장바구니 핸들러 ======
-  const handleCartQtyChange = (cartId, delta) => {
+  const handleCartQtyChange = (id, delta) => {
     setCart(prev =>
       prev.map(item =>
-        item.cartId === cartId
+        item.id === id
           ? { ...item, qty: Math.max(1, item.qty + delta) }
           : item
       )
     );
   };
 
-  const handleCartRemove = (cartId) => {
-    setCart(prev => prev.filter(item => item.cartId !== cartId));
+  const handleCartRemove = (id) => {
+    setCart(prev => prev.filter(item => item.id !== id));
   };
 
   // ✅ 수정 버전
@@ -131,13 +129,6 @@ export default function KioskApp() {
 
       const { type } = data;
 
-      const now = Date.now();
-      if (now - lastTagTime.current < 400) {
-        console.log("⏳ 너무 빠른 태그 감지됨 - 무시");
-        return;
-      }
-      lastTagTime.current = now; // 태그 시간 갱신
-
       // [CASE A] 일반 회원 태그 (개인화 NFC)
             // [CASE A] 일반 회원 태그 (개인화 NFC)
       if (type === "TAG_ON") {
@@ -179,32 +170,26 @@ export default function KioskApp() {
           return;
         }
 
-        const opt = data.options || data.fixed_options || {};
-
         const baseOptions = {
-          temp: opt.temp || "ice",
-          size: opt.size || "basic",
-          shot: typeof opt.shot === "number" ? opt.shot : 2,
-          milk: opt.milk || "regular",
+          temp: data.options?.temp || "ice",
+          size: data.options?.size || "basic",
+          shot: data.options?.shot || 2,
+          milk: data.options?.milk || "regular",
         };
 
         setIsSingleFlow(true);
         setCurrentUid("GUEST");
 
         setCart((prev) => {
-          const existing = prev.find((item) =>
-            item.id === menuId &&
-            JSON.stringify(item.options) === JSON.stringify(baseOptions)
-          );
+          const existing = prev.find((item) => item.id === menuId);
           if (existing) {
             return prev.map((item) =>
-              item.cartId === existing.cartId ? { ...item, qty: item.qty + 1 } : item
+              item.id === menuId ? { ...item, qty: item.qty + 1 } : item
             );
           }
           return [
             ...prev,
             {
-              cartId: Date.now() + Math.random(),
               id: menuId,
               menu: found,
               qty: 1,
@@ -341,8 +326,7 @@ export default function KioskApp() {
   };
 
   const handleDirectOrder = () => {
-    setScreen('card');
-    setPayMethod('card'); 
+    setScreen('payment'); 
   };
 
 
@@ -370,13 +354,14 @@ export default function KioskApp() {
         recommendTextMode = 'personal';  // ⭐ 자주 드시던 메뉴 모드
       } else {
       // ⭐ [변경] 이름 대신 ID 목록을 사용 (DB에 저장된 정확한 id 입력 필수)
-      const RECOMMEND_IDS = ['americano', 'latte', 'cappuccino'];
+      const RECOMMEND_IDS = ['americano', 'latte', 'citron_tea','lemonade','misutgaru','piece_cake','castella','croffle','sandwich'];
 
       // id 기준으로 메뉴 객체 찾아서, 순서도 고정
       displayData = RECOMMEND_IDS
         .map((id) => menus.find((m) => m.id === id))
         .filter(Boolean); // 혹시 ID가 틀려서 못 찾은 경우(undefined) 제거
-        recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
+        
+      recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
     }
     } else {
       displayData = menus.filter(m => m.category === selectedCategory);
@@ -402,10 +387,6 @@ export default function KioskApp() {
         cup={cup}
         onDirectOrder={handleDirectOrder} 
         onChangeOptions={() => setScreen('options')} 
-        onChangeMenu={() => {
-        setSelectedId(null);   
-        setScreen('nfc');    
-        }}   
       />
     );
   }
@@ -414,7 +395,6 @@ export default function KioskApp() {
   if (screen === 'options') {
     return (
       <ScreenOptions
-        menu={selectedMenu}
         temp={temp} setTemp={setTemp}
         dine={dine} setDine={setDine}
         setCup={setCup}

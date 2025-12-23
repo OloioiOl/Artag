@@ -1,6 +1,5 @@
 /* src/components/KioskScreens.js */
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 
 // ====== 유틸 ======
 
@@ -131,9 +130,9 @@ export function ScaledLayout({ children }) {
  * ------------------------------------------------- */
 export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
   const categories = [
-    { id: 'coffee', label: '커피', image:'/coffee.png' },
-    { id: 'beverage', label: '음료', image: '/beverage.png' },
-    { id: 'dessert', label: '빵 / 디저트', image:'/dessert.png' },
+    { id: 'coffee', label: '커피', icon: '☕🥐🧁' },
+    { id: 'beverage', label: '음료', icon: '🥤🧃🍹' },
+    { id: 'dessert', label: '빵 / 디저트', icon: '🍰🧁🥐' },
     { id: 'recommend', label: '추천 메뉴', icon: '⭐✨🌟' },
   ];
 
@@ -145,13 +144,11 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
           backgroundColor: '#ffffff',
           display: 'flex',
           flexDirection: 'column',
-          alignItems:'center',
         }}
       >
         {/* 언어 선택 */}
         <div
           style={{
-            width:'100%',
             display: 'flex',
             justifyContent: 'flex-end',
             gap: 10,
@@ -162,7 +159,7 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
             style={{
               padding: '10px 20px',
               backgroundColor: 'white',
-              border: '2px solid #ddd',
+              border: '2px solid #3b82f6',
               borderRadius: 10,
               cursor: 'pointer',
               fontSize: 14,
@@ -186,11 +183,10 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
             style={{
               padding: '10px 20px',
               backgroundColor: 'white',
-              border: '1px solid #3b82f6',
+              border: '1px solid #ddd',
               borderRadius: 10,
               cursor: 'pointer',
               fontSize: 14,
-              fontweight:'bold',
             }}
           >
             🇰🇷 한국
@@ -198,12 +194,12 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
         </div>
 
         {/* 헤더 + 가상 NFC 버튼 */}
-        <div style={{ textAlign: 'center', margin: '20px 0 20px' }}>
+        <div style={{ textAlign: 'center', margin: '40px 0 30px' }}>
           <div
             style={{
-              fontSize: 60,
+              fontSize: 40,
               fontWeight: 800,
-              color: '#0A400C',
+              color: '#0f7132',
               marginBottom: 8,
             }}
           >
@@ -211,7 +207,7 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
           </div>
           <div
             style={{
-              fontSize: 70,
+              fontSize: 32,
               fontWeight: 800,
               color: '#111827',
             }}
@@ -228,40 +224,38 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
             {status || '화면을 터치하거나 카드를 태그하세요'}
           </div>
 
-          {/*{onDebugClick && (
-            <div style={{ marginTop: 16 }}>
+          {onDebugClick && (
+            <div style={{ marginTop: 20 }}>
               <button
                 onClick={onDebugClick}
                 style={{
                   padding: '8px 16px',
-                  backgroundColor: '#F15151',
+                  backgroundColor: '#ef4444',
                   color: 'white',
                   border: 'none',
                   borderRadius: 8,
                   fontSize: 14,
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  opacity: 0.9,
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.15)',
+                  opacity: 0.8,
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 }}
-                {...hoverify('#F15151', '#dc2626')}
+                {...hoverify('#ef4444', '#dc2626')}
               >
                 🛠️ (TEST) 가상 NFC 태그
               </button>
             </div>
-          )}*/}
+          )}
         </div>
 
         {/* 카테고리 4개 */}
         <div
           style={{
             flex: 1,
-            width:'100%',
             padding: '0 50px 50px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            boxSizing:'border-box',
           }}
         >
           <div
@@ -278,7 +272,7 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
                 key={cat.id}
                 onClick={() => onCategorySelect && onCategorySelect(cat.id)}
                 style={{
-                  backgroundColor: '#0A400C',
+                  backgroundColor: '#166534',
                   color: 'white',
                   borderRadius: 30,
                   padding: 80,
@@ -288,36 +282,14 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: 20,
-                  boxShadow: '0 18px 32px rgba(0,0,0,0.28)',
+                  boxShadow: '0 12px 28px rgba(0,0,0,0.25)',
                 }}
-                {...hoverify('#0A400C', '#0b5a27')}
+                {...hoverify('#166534', '#15803d')}
               >
-                {cat.image ? (
-                  <div style={{
-                    width: '200px',       // 흰색 원 지름
-                    height: '200px',
-                    backgroundColor: 'white',
-                    borderRadius: '50%',  // 원형 만들기
-                    display: 'flex',
-                    alignItems: 'center',
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    marginBottom: '10px'
-                  }}>
-                    <img 
-                      src={cat.image} 
-                      alt={cat.label} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    />
-                  </div>
-                ) : (
-                  /* 이미지가 없는 경우 (추천 메뉴 - 이모지 사용) */
-                  <div style={{ fontSize: 76 }}>{cat.icon}</div>
-                )}
-
+                <div style={{ fontSize: 80 }}>{cat.icon}</div>
                 <span
                   style={{
-                    fontSize: 52,
+                    fontSize: 36,
                     fontWeight: 'bold',
                   }}
                 >
@@ -326,52 +298,6 @@ export function ScreenHome({ onCategorySelect, status, onDebugClick }) {
               </button>
             ))}
           </div>
-        </div>
-        {/* 하단: 전용 카드 안내  */}
-        <div
-          style={{
-            width: '100%',
-            padding: '50px 0 120px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 20,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 60,
-              fontWeight: 900,
-              color: '#0f5132',
-              letterSpacing: -0.5,
-              textShadow: '0 2px 4px rgba(0,0,0,0.15)',
-            }}
-          >
-            전용 카드로 간편 주문하기
-          </div>
-
-          <div
-            style={{
-              fontSize: 60,
-              color: '#0f5132',
-              fontWeight: 800,
-              animation: 'arrowBounce 1.4s infinite ease-in-out',
-              marginTop: 2,
-            }}
-          >
-            ▼
-          </div>
-
-          <style>
-            {`
-              @keyframes arrowBounce {
-                0% { transform: translateY(0); opacity: 0.7; }
-                50% { transform: translateY(10px); opacity: 1; }
-                100% { transform: translateY(0); opacity: 0.7; }
-              }
-            `}
-          </style>
         </div>
       </div>
     </ScaledLayout>
@@ -413,7 +339,7 @@ export function ScreenMenu({
             onClick={onBack}
             style={{
               padding: '12px 24px',
-              backgroundColor: '#F15151',
+              backgroundColor: '#ef4444',
               color: 'white',
               border: 'none',
               borderRadius: 12,
@@ -421,7 +347,7 @@ export function ScreenMenu({
               fontWeight: 'bold',
               cursor: 'pointer',
             }}
-            {...hoverify('#F15151', '#dc2626')}
+            {...hoverify('#ef4444', '#dc2626')}
           >
             ✖ 초기화
           </button>
@@ -485,9 +411,7 @@ export function ScreenMenu({
             items.map((item) => {
               const price = item.price || 0;
 
-              const imgFileName = item.images 
-                ? (item.images.hot || item.images.ice || item.images.only) 
-                : null;
+              const imgFileName = item.images ? item.images.hot : null;
               const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
               const name = item.name || '메뉴';
 
@@ -503,6 +427,9 @@ export function ScreenMenu({
                     boxShadow: '0 18px 28px rgba(0, 0, 0, 0.25)',
                     cursor: 'pointer',
                     paddingBottom: 16,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems:'center',
                   }}
                 >
                   <div
@@ -513,6 +440,8 @@ export function ScreenMenu({
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: 'clamp(52px, 6vw, 72px)',
+                      backgroundColor: '#f9fafb',             // 이미지가 투명할 경우 배경색
+                      marginBottom: 12,
                     }}
                   >
                     
@@ -530,7 +459,8 @@ export function ScreenMenu({
                   </div>
                   <div
                     style={{
-                      padding: 12,
+                      width: '100%',
+                      padding: '0 12px',
                       textAlign: 'center',
                     }}
                   >
@@ -579,7 +509,7 @@ export function ScreenMenu({
             style={{
               width: '100%',
               padding: 'clamp(12px, 1.8vh, 16px) 20px',
-              backgroundColor: '#0A400C',
+              backgroundColor: '#166534',
               color: 'white',
               border: 'none',
               borderRadius: 16,
@@ -587,7 +517,7 @@ export function ScreenMenu({
               fontWeight: 'bold',
               cursor: 'pointer',
             }}
-            {...hoverify('#0A400C', '#0b5a27')}
+            {...hoverify('#166534', '#0f5132')}
           >
             📋 전체 메뉴 보기 (로그인 유지)
           </button>
@@ -600,25 +530,19 @@ export function ScreenMenu({
 /* -------------------------------------------------
  * 3. 메뉴 확인 화면
  * ------------------------------------------------- */
-export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChangeOptions, onChangeMenu,}) {
+export function ScreenConfirm({ selected, temp, cup, onDirectOrder, onChangeOptions }) {
   if (!selected) return null;
 
   const tempLabel = temp === 'hot' ? '따뜻한' : '차가운';
   const cupLabel = cup === 'basic' ? '기본컵' : '테이크아웃컵';
-  const tempColor = temp === 'hot' ? '#F15151' : '#0B51FF';
+  const tempColor = temp === 'hot' ? '#FF6B6B' : '#2986FF';
   const name = selected.name || '';
 
   // temp가 'hot'이면 selected.images.hot을, 'ice'면 selected.images.ice를 가져옴
-  const imgFileName = selected.images 
-  ? (selected.images[temp] || selected.images.only) : null
+  const imgFileName = selected.images ? selected.images[temp] : null;
   const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
 
   const curPrice=getPrice(selected,temp);
-
-  const dineValue = dine || 'takeout';
-  const dinePrefix =
-    dine === 'takeout' ? '매장에서 ' : '포장해서 ';
-  const dineSuffix = '드시겠어요?';
 
   return (
     <ScaledLayout>
@@ -666,77 +590,33 @@ export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChan
             )}
           </div>
 
-          {/* 1줄: 온도 + 메뉴명 + 조사 */}
+          {/* 문장 1줄 + 1줄 */}
           <div
             style={{
               marginTop: 36,
-              lineHeight: 1.3,
+              fontSize: 52,
               fontWeight: 900,
+              lineHeight: 1.32,
             }}
           >
-            {/* 따뜻한 / 차가운 */}
-            <span
-              style={{
-                fontSize: 56,
-                color: tempColor,
-                fontWeight: 900,
-              }}
-            >
-              {tempLabel + ' '}
-            </span>
-
-            {/* 메뉴명 */}
-            <span
-              style={{
-                fontSize: 56,
-                color: '#0A400C',
-                fontWeight: 900,
-              }}
-            >
-              {name}
-            </span>
-
-            {/* 조사 를/을 */}
-            <span
-              style={{
-                fontSize: 40,
-                marginLeft: 4,
-                color: '#111827',
-                fontWeight: 800,
-              }}
-            >
-              {eulReul(name)}
-            </span>
+            <span style={{ color: tempColor }}>{tempLabel} </span>
+            <span style={{ color: '#166534' }}>{name}</span>
+            {eulReul(name)}
           </div>
 
-          {/* 2줄: 포장해서 / 매장에서 + 질문 */}
           <div
             style={{
-              marginTop: 8,
-              lineHeight: 1.3,
+              marginTop: 12,
+              fontSize: 42,
               fontWeight: 800,
+              lineHeight: 1.28,
             }}
           >
-            <span
-              style={{
-                fontSize: 56,
-                color: '#0A400C',
-                fontWeight: 900,
-              }}
-            >
-              {dinePrefix}
-            </span>
-
-            <span
-              style={{
-                fontSize: 40,
-                marginLeft: 6,
-                color: '#111827',
-                fontWeight: 800,
-              }}
-            >
-              {dineSuffix}
-            </span>
+            {cupLabel}으로 준비해드릴까요?
+            {/* ✅ [신규 추가] 가격 표시 */}
+            <div style={{ color: '#0f7132', marginTop: 16, fontSize: 48, fontWeight: 900 }}>
+               {curPrice.toLocaleString()}원
+            </div>
           </div>
 
           {/* 그대로 주문하기 – 넓은 초록 버튼 */}
@@ -744,18 +624,18 @@ export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChan
             onClick={onDirectOrder}
             style={{
               marginTop: 70,
-              width: 760,
+              width: 800,
               height: 150,
               borderRadius: 32,
-              backgroundColor: '#0A400C',
+              backgroundColor: '#0f7132',
               border: 'none',
               color: 'white',
-              fontSize: 48,
+              fontSize: 42,
               fontWeight: 900,
               boxShadow: '0 20px 32px rgba(0,0,0,0.28)',
               cursor: 'pointer',
             }}
-            {...hoverify('#0A400C', '#0b5a27')}
+            {...hoverify('#0f7132', '#0b5a27')}
           >
             그대로 주문하기
           </button>
@@ -771,20 +651,19 @@ export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChan
           >
             {/* ⚠ 다른 메뉴 선택하기 – 지금은 App에서 콜백이 없어서 동작 X (UI만 맞춰둠) */}
             <button
-              onClick={onChangeMenu}
               style={{
                 width: 360,
                 height: 324,
-                backgroundColor: '#888888',
+                backgroundColor: '#8b8b8b',
                 borderRadius: 32,
                 border: 'none',
                 color: 'white',
-                fontSize: 48,
+                fontSize: 42,
                 fontWeight: 800,
                 boxShadow: '0 16px 28px rgba(0,0,0,0.22)',
                 cursor: 'pointer',
               }}
-              {...hoverify('#888888', '#6b7280')}
+              {...hoverify('#8b8b8b', '#7a7a7a')}
             >
               다른 메뉴
               <br />
@@ -797,16 +676,16 @@ export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChan
               style={{
                 width: 360,
                 height: 324,
-                backgroundColor: '#626950',
+                backgroundColor: '#6b7551',
                 borderRadius: 32,
                 border: 'none',
                 color: 'white',
-                fontSize: 48,
+                fontSize: 42,
                 fontWeight: 800,
                 boxShadow: '0 16px 28px rgba(0,0,0,0.22)',
                 cursor: 'pointer',
               }}
-              {...hoverify('#626950', '#4b4f3d')}
+              {...hoverify('#6b7551', '#5e6849')}
             >
               온도·포장
               <br />
@@ -824,7 +703,6 @@ export function ScreenConfirm({ selected, temp, cup, dine, onDirectOrder, onChan
  * 4. 기본 옵션 화면 (온도 + 받는 방식)
 * ------------------------------------------------- */
 export function ScreenOptions({
-  menu,
   temp,
   setTemp,
   dine,
@@ -834,48 +712,13 @@ export function ScreenOptions({
   onBack,
   onMoreOptions,  // ✅ 추가
 }) {
-  const TITLE_FONT_SIZE = 44;
+  const TITLE_FONT_SIZE = 38;
 
-  const canHot = menu?.images?.hot !== undefined;
-  const canIce = menu?.images?.ice !== undefined;
-
-  // (선택사항) 자동 보정: 진입 시 불가능한 옵션이면 가능한 옵션으로 변경
-  useEffect(() => {
-    if (!canHot && canIce && temp === 'hot') {
-      setTemp('ice'); // Hot 불가능한데 Hot 상태면 Ice로 강제 변경
-    } else if (canHot && !canIce && temp === 'ice') {
-      setTemp('hot'); // 반대의 경우
-    }
-  }, [menu, canHot, canIce, temp, setTemp]);
-
-  const makeTempCardStyle = (active, borderColor,isAvailable) => {
-    if (!isAvailable) {
-      return {
-        width: 350,
-        height: 240,
-        borderRadius: 32,
-        border: '4px solid #E5E7EB',    // 연한 회색 테두리
-        backgroundColor: '#F3F4F6',     // 연한 회색 배경
-        color: '#9CA3AF',               // 텍스트 회색
-        boxShadow: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-        fontSize: 44,
-        fontWeight: 800,
-        gap: 10,
-        cursor: 'not-allowed',          // 금지 커서
-        opacity: 0.6,
-      };
-    }
-
-    return {
+  const makeTempCardStyle = (active, borderColor) => ({
     width: 350,
-    height: 240,
+    height: 200,
     borderRadius: 32,
-    border: active ? `4px solid ${borderColor}` : '4px solid #888888',
+    border: active ? `4px solid ${borderColor}` : '4px solid #e5e7eb',
     backgroundColor: 'white',
     boxShadow: active
       ? '0 16px 28px rgba(0,0,0,0.18)'
@@ -886,11 +729,10 @@ export function ScreenOptions({
     justifyContent: 'center',
     padding: 24,
     cursor: 'pointer',
-    fontSize: 44,
+    fontSize: 26,
     fontWeight: 800,
     gap: 10,
-    };
-  };
+  });
 
   const makeDineCardStyle = (active) => ({
     width: 350,
@@ -910,7 +752,7 @@ export function ScreenOptions({
     paddingLeft: 40,
     paddingRight: 40,
     cursor: 'pointer',
-    fontSize: 44,
+    fontSize: 28,
     fontWeight: 800,
     gap: 10,
   });
@@ -957,29 +799,19 @@ export function ScreenOptions({
             >
               {/* 차갑게 */}
               <button
-                onClick={() => {
-                  if (canIce) setTemp('ice'); // 👈 가능할 때만 변경
-                }}
-                style={makeTempCardStyle(temp === 'ice', '#0B51FF',canIce)}
+                onClick={() => setTemp('ice')}
+                style={makeTempCardStyle(temp === 'ice', '#2563eb')}
               >
-                <div style={{ fontSize: 70,
-                              filter: canIce ? 'none' : 'grayscale(100%)', 
-                              opacity: canIce ? 1 : 0.3
-                            }}>🧊</div>
+                <div style={{ fontSize: 43 }}>🧊</div>
                 <div>차갑게</div>
               </button>
 
               {/* 따뜻하게 */}
               <button
-                onClick={() => {
-                   if (canHot) setTemp('hot'); // 👈 가능할 때만 변경
-                }}
-                style={makeTempCardStyle(temp === 'hot', '#F15151',canHot)}
+                onClick={() => setTemp('hot')}
+                style={makeTempCardStyle(temp === 'hot', '#f97316')}
               >
-                <div style={{ fontSize: 70,
-                              filter: canHot ? 'none' : 'grayscale(100%)', 
-                              opacity: canHot ? 1 : 0.3
-                            }}>🔥</div>
+                <div style={{ fontSize: 43 }}>🔥</div>
                 <div>따뜻하게</div>
               </button>
             </div>
@@ -1011,7 +843,7 @@ export function ScreenOptions({
                 }}
                 style={makeDineCardStyle(dine === 'takeout')}
               >
-                <div style={{ fontSize: 70 }}>🛍️</div>
+                <div style={{ fontSize: 52 }}>🛍️</div>
                 <div>포장하기</div>
               </button>
 
@@ -1023,7 +855,7 @@ export function ScreenOptions({
                 }}
                 style={makeDineCardStyle(dine === 'dinein')}
               >
-                <div style={{ fontSize: 70 }}>🍽️</div>
+                <div style={{ fontSize: 52 }}>🍽️</div>
                 <div>먹고 가기</div>
               </button>
             </div>
@@ -1035,7 +867,6 @@ export function ScreenOptions({
               display: 'flex',
               flexDirection: 'column',
               gap: 20,
-              alignItems: 'center'
             }}
           >
             {/* 큰 초록 버튼 : 적용하기 (바로 주문으로 이어짐) */}
@@ -1047,19 +878,18 @@ export function ScreenOptions({
                 if (onOrder) onOrder();
               }}
               style={{
-                width: 870,        
-                height: 140,      
-                backgroundColor: '#0A400C',
-                borderRadius: 32,    
+                width: '100%',
+                padding: '24px 20px',
+                backgroundColor: '#0f7132',
+                borderRadius: 24,
                 border: 'none',
                 color: 'white',
-                fontSize: 44,       
-                fontWeight: 900,
+                fontSize: 28,
+                fontWeight: 800,
                 cursor: 'pointer',
                 boxShadow: '0 18px 32px rgba(0,0,0,0.25)',
-                marginBottom: 20,
               }}
-              {...hoverify('#0A400C', '#0b5a27')}
+              {...hoverify('#0f7132', '#0b5a27')}
             >
               적용하기
             </button>
@@ -1069,48 +899,46 @@ export function ScreenOptions({
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                gap: 40,
+                gap: 20,
               }}
             >
-              {/* 왼쪽: 다른 메뉴 선택하기 (메뉴 화면으로) */}
               <button
                 onClick={onBack}
                 style={{
-                  width: 415,
-                  height: 120,
-                  backgroundColor: '#888888',
-                  borderRadius: 32,
+                  flex: 1,
+                  padding: '20px 20px',
+                  backgroundColor: '#e5e7eb',
+                  borderRadius: 24,
                   border: 'none',
-                  color: 'white',
-                  fontSize: 44,
-                  fontWeight: 800,
-                  boxShadow: '0 16px 28px rgba(0,0,0,0.22)',
+                  color: '#4b5563',
+                  fontSize: 24,
+                  fontWeight: 700,
                   cursor: 'pointer',
+                  boxShadow: '0 10px 22px rgba(0,0,0,0.18)',
                 }}
-                {...hoverify('#888888', '#6b7280')}
               >
                 취소하기
               </button>
 
-              {/* 오른쪽: 온도·포장 바꾸기 (기본 옵션 화면으로) */}
-              <button
-                onClick={onMoreOptions}
-                style={{
-                  width: 415,
-                  height: 120,
-                  backgroundColor: '#626950',
-                  borderRadius: 32,
-                  border: 'none',
-                  color: 'white',
-                  fontSize: 44,
-                  fontWeight: 800,
-                  boxShadow: '0 16px 28px rgba(0,0,0,0.22)',
-                  cursor: 'pointer',
-                }}
-                {...hoverify('#626950', '#4b4f3d')}
-              >
-                옵션 더보기
-              </button>
+              {onMoreOptions && (
+                <button
+                  onClick={onMoreOptions}
+                  style={{
+                    flex: 1,
+                    padding: '20px 20px',
+                    backgroundColor: '#6b7056',
+                    borderRadius: 24,
+                    border: 'none',
+                    color: '#ffffff',
+                    fontSize: 24,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 10px 22px rgba(0,0,0,0.18)',
+                  }}
+                >
+                  옵션 더보기
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1149,7 +977,7 @@ export function ScreenAdvOptions({
     width: w,
     height: h,
     borderRadius: 32,
-    border: active ? '4px solid #0A400C' : '4px solid #888888',
+    border: active ? '4px solid #0f7132' : '4px solid #d1d5db',
     backgroundColor: active ? '#effdf3' : 'white',
     boxShadow: active
       ? '0 14px 30px rgba(0,0,0,0.18)'
@@ -1158,18 +986,18 @@ export function ScreenAdvOptions({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    fontSize: 30,
-    fontWeight: 900,
+    fontSize: 24,
+    fontWeight: 800,
     cursor: 'pointer',
     padding: 16,
-    gap: 10,
+    gap: 6,
   });
 
   const milkButton = (active) => ({
     width: 210,
     height: 160,
     borderRadius: 28,
-    border: active ? '4px solid #0A400C' : '4px solid #888888',
+    border: active ? '4px solid #0f7132' : '4px solid #d1d5db',
     backgroundColor: active ? '#effdf3' : 'white',
     boxShadow: active
       ? '0 14px 30px rgba(0,0,0,0.18)'
@@ -1178,10 +1006,10 @@ export function ScreenAdvOptions({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    fontSize: 30,
+    fontSize: 22,
     fontWeight: 700,
     cursor: 'pointer',
-    gap: 6,
+    gap: 4,
   });
 
   const totalPrice=calcTotalPrice(menu, temp, size, shot, milk);
@@ -1223,8 +1051,8 @@ export function ScreenAdvOptions({
                 onClick={() => setSize && setSize('basic')}
                 style={cupButton(200, 160, size === 'basic')}
               >
-                <div style={{ fontSize: 30 }}>기본</div>
-                <div style={{ fontSize: 28, fontWeight: 600 }}>
+                <div style={{ fontSize: 26 }}>기본</div>
+                <div style={{ fontSize: 20, fontWeight: 600 }}>
                   360ml
                 </div>
               </button>
@@ -1233,11 +1061,11 @@ export function ScreenAdvOptions({
                 onClick={() => setSize && setSize('big')}
                 style={cupButton(200, 180, size === 'big')}
               >
-                <div style={{ fontSize: 30 }}>큰 컵</div>
-                <div style={{ fontSize: 28, fontWeight: 600 }}>
+                <div style={{ fontSize: 26 }}>큰 컵</div>
+                <div style={{ fontSize: 20, fontWeight: 600 }}>
                   470ml
                 </div>
-                <div style={{ fontSize: 26, color: '#0A400C' }}>
+                <div style={{ fontSize: 18, color: '#0f7132' }}>
                   +500원
                 </div>
               </button>
@@ -1246,11 +1074,11 @@ export function ScreenAdvOptions({
                 onClick={() => setSize && setSize('huge')}
                 style={cupButton(200, 200, size === 'huge')}
               >
-                <div style={{ fontSize: 30 }}>아주 큰 컵</div>
-                <div style={{ fontSize: 28, fontWeight: 600 }}>
+                <div style={{ fontSize: 26 }}>아주 큰 컵</div>
+                <div style={{ fontSize: 20, fontWeight: 600 }}>
                   650ml
                 </div>
-                <div style={{ fontSize: 26, color: '#0A400C' }}>
+                <div style={{ fontSize: 18, color: '#0f7132' }}>
                   +1,000원
                 </div>
               </button>
@@ -1272,7 +1100,7 @@ export function ScreenAdvOptions({
               margin: '0 auto',
             }}
           >
-            <div style={{ fontSize: 40, fontWeight: 900 }}>
+            <div style={{ fontSize: 36, fontWeight: 900 }}>
               에스프레소 샷
             </div>
             <div
@@ -1291,9 +1119,9 @@ export function ScreenAdvOptions({
                   width: 140,
                   height: 96,
                   borderRadius: 24,
-                  border: '4px solid #888888',
+                  border: '4px solid #d1d5db',
                   backgroundColor: 'white',
-                  fontSize: 42,
+                  fontSize: 40,
                   fontWeight: 900,
                 }}
               >
@@ -1318,7 +1146,7 @@ export function ScreenAdvOptions({
                 {shot === 2 && (
                   <span
                     style={{
-                      fontSize: 30,
+                      fontSize: 24,
                       fontWeight: 700,
                       color: '#4b5563',
                     }}
@@ -1335,7 +1163,7 @@ export function ScreenAdvOptions({
                   height: 96,
                   borderRadius: 24,
                   border: 'none',
-                  backgroundColor: '#0A400C',
+                  backgroundColor: '#0f7132',
                   color: 'white',
                   fontSize: 42,
                   fontWeight: 900,
@@ -1345,7 +1173,7 @@ export function ScreenAdvOptions({
               </button>
             </div>
 
-            <div style={{ fontSize: 30, color: '#6b7280', fontWeight: 800 }}>
+            <div style={{ fontSize: 22, color: '#6b7280' }}>
               +{Math.max(shot - 2, 0) * 500}원
             </div>
           </div>
@@ -1374,7 +1202,7 @@ export function ScreenAdvOptions({
                 style={milkButton(milk === 'lowfat')}
               >
                 <div>저지방</div>
-                <div style={{ color: '#0A400C' }}>+500원</div>
+                <div style={{ color: '#0f7132' }}>+500원</div>
               </button>
 
               <button
@@ -1382,7 +1210,7 @@ export function ScreenAdvOptions({
                 style={milkButton(milk === 'soy')}
               >
                 <div>두유</div>
-                <div style={{ color: '#0A400C' }}>+500원</div>
+                <div style={{ color: '#0f7132' }}>+500원</div>
               </button>
 
               <button
@@ -1390,7 +1218,7 @@ export function ScreenAdvOptions({
                 style={milkButton(milk === 'oat')}
               >
                 <div>귀리우유</div>
-                <div style={{ color: '#0A400C' }}>+500원</div>
+                <div style={{ color: '#0f7132' }}>+500원</div>
               </button>
             </div>
           </div>
@@ -1398,10 +1226,10 @@ export function ScreenAdvOptions({
           {/* 합계 + 버튼 */}
           <div
             style={{
-              fontSize: 56,
+              fontSize: 42,
               fontWeight: 900,
               textAlign: 'center',
-              color: '#0A400C',
+              color: '#0f7132',
               marginTop: 8,
             }}
           >
@@ -1423,14 +1251,13 @@ export function ScreenAdvOptions({
                 width: 420,
                 height: 150,
                 borderRadius: 32,
-                backgroundColor: '#888888',
+                backgroundColor: '#d1d5db',
                 border: 'none',
-                fontSize: 40,
+                fontSize: 32,
                 fontWeight: 800,
-                color: '#ffffff',
+                color: '#4b5563',
                 boxShadow: '0 12px 26px rgba(0,0,0,0.15)',
               }}
-              {...hoverify('#888888', '#6b7280')}
             >
               취소하기
             </button>
@@ -1441,14 +1268,13 @@ export function ScreenAdvOptions({
                 width: 420,
                 height: 150,
                 borderRadius: 32,
-                backgroundColor: '#0A400C',
+                backgroundColor: '#0f7132',
                 border: 'none',
-                fontSize: 40,
+                fontSize: 32,
                 fontWeight: 900,
                 color: 'white',
                 boxShadow: '0 12px 26px rgba(0,0,0,0.25)',
               }}
-              {...hoverify('#0A400C', '#0b5a27')}
             >
               적용하기
             </button>
@@ -1476,15 +1302,12 @@ export function ScreenFinalConfirm({
   if (!selected) return null;
 
   const tempLabel = temp === 'hot' ? '따뜻한' : '차가운';
-  const tempColor = temp === 'hot' ? '#F15151' : '#0B51FF';
+  const tempColor = temp === 'hot' ? '#FF6B6B' : '#2986FF';
   const name = selected.name || '';
 
-  // 포장 / 매장 문장
-  const dinePrefix =
-    dine === 'takeout' ? '포장해서 ' : '매장에서 ';
-  const dineSuffix = '드시겠어요?';
+  const dineText =
+    dine === 'takeout' ? '포장해서 드시겠어요?' : '매장에서 드시겠어요?';
 
-  // 고급 옵션 텍스트 (회색 박스 전용)
   const sizeLabel =
     size === 'big'
       ? '큰 컵'
@@ -1505,8 +1328,8 @@ export function ScreenFinalConfirm({
 
   const optionLine = `옵션: ${sizeLabel} / ${shotLabel} / ${milkLabel}`;
 
-  const imgFileName = selected.images 
-  ? (selected.images[temp] || selected.images.only)  : null;
+  // ⭐️ [핵심 로직] 여기도 똑같이 적용!
+  const imgFileName = selected.images ? selected.images[temp] : null;
   const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
 
   const curPrice=calcTotalPrice(selected,temp,size,shot,milk);
@@ -1567,22 +1390,21 @@ export function ScreenFinalConfirm({
             }}
           >
             <span style={{ color: tempColor }}>{tempLabel} </span>
-            <span style={{ color:  '#0A400C'}}>{name}</span>
+            <span style={{ color: '#166534' }}>{name}</span>
             {eulReul(name)}
             <br />
-            <span style={{ color: '#0A400C' }}>{dinePrefix}</span>
-            <span>{dineSuffix}</span>
+            <span>{dineText}</span>
           </div>
 
           {/* ✅ 옵션 요약 – 화면 가로만큼 꽉 찬 회색 박스 */}
           <div
             style={{
-              marginTop: 34,
+              marginTop: 24,
               padding: '18px 32px',
               borderRadius: 0,
               backgroundColor: '#f3f4f6',
               color: '#4b5563',
-              fontSize: 38,
+              fontSize: 20,
               fontWeight: 600,
               display: 'block',
               width: '100%',
@@ -1602,19 +1424,19 @@ export function ScreenFinalConfirm({
           <button
             onClick={onDirectOrder}
             style={{
-              marginTop: 70,
-              width: 760,
-              height: 150,
+              marginTop: 60,
+              width: 800,
+              height: 140,
               borderRadius: 32,
-              backgroundColor: '#0A400C',
+              backgroundColor: '#0f7132',
               border: 'none',
               color: 'white',
-              fontSize: 48,
+              fontSize: 40,
               fontWeight: 900,
               boxShadow: '0 20px 32px rgba(0,0,0,0.28)',
               cursor: 'pointer',
             }}
-            {...hoverify('#0A400C', '#0b5a27')}
+            {...hoverify('#0f7132', '#0b5a27')}
           >
             그대로 주문하기
           </button>
@@ -1622,50 +1444,48 @@ export function ScreenFinalConfirm({
           {/* 아래 두 버튼 */}
           <div
             style={{
-              marginTop: 40,
+              marginTop: 36,
               display: 'flex',
               justifyContent: 'center',
               gap: 40,
             }}
           >
-            {/* 왼쪽: 다른 메뉴 선택하기 */}
+            {/* ✅ 왼쪽: 다른 메뉴 선택하기 (메뉴 화면으로) */}
             <button
               onClick={onChangeMenu}
               style={{
                 width: 360,
-                height: 324,
-                backgroundColor: '#888888',
+                height: 120,
+                backgroundColor: '#8b8b8b',
                 borderRadius: 32,
                 border: 'none',
                 color: 'white',
-                fontSize: 48,
+                fontSize: 32,
                 fontWeight: 800,
                 boxShadow: '0 16px 28px rgba(0,0,0,0.22)',
                 cursor: 'pointer',
               }}
-              {...hoverify('#888888', '#6b7280')}
             >
               다른 메뉴
               <br />
               선택하기
             </button>
 
-            {/* 오른쪽: 온도·포장 바꾸기 */}
+            {/* ✅ 오른쪽: 온도·포장 바꾸기 (기본 옵션 화면으로) */}
             <button
               onClick={onBack}
               style={{
                 width: 360,
-                height: 324,
-                backgroundColor: '#626950',
+                height: 120,
+                backgroundColor: '#6b7551',
                 borderRadius: 32,
                 border: 'none',
                 color: 'white',
-                fontSize: 48,
+                fontSize: 32,
                 fontWeight: 800,
                 boxShadow: '0 16px 28px rgba(0,0,0,0.22)',
                 cursor: 'pointer',
               }}
-              {...hoverify('#626950', '#4b4f3d')}
             >
               온도·포장
               <br />
@@ -1703,19 +1523,13 @@ export function ScreenPayment({ onSelectCard, onSelectMobile }) {
             width: '100%',
             maxWidth: 1080,
             textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: 'auto',
-            marginBottom: 'auto',
           }}
         >
           <div
             style={{
-              fontSize: 78,
+              fontSize: 40,
               fontWeight: 800,
-              marginBottom: 140,
+              marginBottom: 60,
             }}
           >
             <span style={{ color: '#0b4a23' }}>결제 수단</span>을
@@ -1726,38 +1540,37 @@ export function ScreenPayment({ onSelectCard, onSelectMobile }) {
             style={{
               display: 'flex',
               justifyContent: 'center',
-              gap: 80,
+              gap: 50,
             }}
           >
             <button
               onClick={onSelectCard}
               style={{
-                width: 380,
-                height: 420,
-                backgroundColor: '#FEFAE0',
-                border: '1px solid #AFAFAF',
-                borderRadius: 28,
-                boxShadow: '0 14px 28px rgba(0,0,0,0.18)',
+                width: 260,
+                height: 330,
+                backgroundColor: '#fdf6d6',
+                border: '1px solid #f5e7a9',
+                borderRadius: 20,
+                boxShadow: '0 8px 15px rgba(0,0,0,0.15)',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
-              {...hoverify('#FEFAE0', '#F5F0C8')}
             >
               <div
                 style={{
-                  fontSize: 120,
-                  marginBottom: 20,
+                  fontSize: 80,
+                  marginBottom: 12,
                 }}
               >
                 💳
               </div>
               <div
                 style={{
-                  fontSize: 44,
-                  fontWeight: 900,
+                  fontSize: 30,
+                  fontWeight: 'bold',
                   color: '#0b4a23',
                 }}
               >
@@ -1768,33 +1581,32 @@ export function ScreenPayment({ onSelectCard, onSelectMobile }) {
             <button
               onClick={onSelectMobile}
               style={{
-                width: 380,
-                height: 420,
-                backgroundColor: '#FEFAE0',
-                border: '2px solid #AFAFAF',
-                borderRadius: 28,
-                boxShadow: '0 14px 28px rgba(0,0,0,0.18)',
+                width: 260,
+                height: 330,
+                backgroundColor: '#fdf6d6',
+                border: '1px solid #f5e7a9',
+                borderRadius: 20,
+                boxShadow: '0 8px 15px rgba(0,0,0,0.15)',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: 18,
+                padding: 10,
               }}
-              {...hoverify('#FEFAE0', '#F5F0C8')}
             >
               <div
                 style={{
-                  fontSize: 120,
-                  marginBottom: 20,
+                  fontSize: 80,
+                  marginBottom: 12,
                 }}
               >
                 📱
               </div>
               <div
                 style={{
-                  fontSize: 44,
-                  fontWeight: 900,
+                  fontSize: 30,
+                  fontWeight: 'bold',
                   color: '#0b4a23',
                 }}
               >
@@ -1802,8 +1614,8 @@ export function ScreenPayment({ onSelectCard, onSelectMobile }) {
               </div>
               <div
                 style={{
-                  marginTop: 14,
-                  fontSize: 22,
+                  marginTop: 10,
+                  fontSize: 16,
                   color: '#333',
                   lineHeight: 1.4,
                 }}
@@ -1823,7 +1635,7 @@ export function ScreenPayment({ onSelectCard, onSelectMobile }) {
 /* -------------------------------------------------
  * 6-A. 카드 결제 대기 화면
  * ------------------------------------------------- */
-export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, onCancel, }) {
+export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, }) {
   const amountText = payAmount.toLocaleString('ko-KR');
 
   return (
@@ -1849,11 +1661,10 @@ export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, onCa
             flexDirection: 'column',
             alignItems: 'center',
             textAlign: 'center',
-            justifyContent: 'flex-start',   
+            justifyContent: 'space-between',
             gap: 40,
           }}
         >
-          {/* 상단 텍스트 + 카드 아이콘 + 금액 + 주문목록 보기 */}
           <div
             style={{
               display: 'flex',
@@ -1865,12 +1676,12 @@ export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, onCa
           >
             <div
               style={{
-                fontSize: 80,
+                fontSize: 44,
                 fontWeight: 900,
                 lineHeight: 1.4,
               }}
             >
-              <span style={{ color: '#0A400C' }}>신용카드</span>를 넣어주세요
+              <span style={{ color: '#0f7132' }}>신용카드</span>를 넣어주세요
             </div>
 
             <div
@@ -1881,14 +1692,14 @@ export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, onCa
               }}
               onClick={onProcess}
             >
-              <span style={{ fontSize: 270 }}>💳</span>
+              <span style={{ fontSize: 160 }}>💳</span>
             </div>
 
             <div
               style={{
-                fontSize: 60,
+                fontSize: 30,
                 fontWeight: 800,
-                color: '#0A400C',
+                color: '#0f7132',
               }}
             >
               결제금액: {amountText}원
@@ -1896,30 +1707,26 @@ export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, onCa
 
             <button
               type="button"
-              onClick={onShowOrder}
+              onClick={onShowOrder} 
               style={{
                 marginTop: 10,
-                padding: '20px 56px',
-                borderRadius: 26,
+                padding: '12px 32px',
+                borderRadius: 16,
                 border: 'none',
-                backgroundColor: '#626950',
+                backgroundColor: '#6b7056',
                 color: '#ffffff',
-                fontSize: 32,
-                fontWeight: 800,
+                fontSize: 20,
+                fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.18)',
               }}
-              {...hoverify('#626950', '#4b4f3d')}
             >
               주문목록 보기
             </button>
           </div>
 
-          {/* 하단 두 개 버튼 영역 */}
           <div
             style={{
               width: '100%',
-              marginTop: 80,
               marginBottom: 40,
               display: 'flex',
               flexDirection: 'column',
@@ -1927,47 +1734,26 @@ export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, onCa
               gap: 24,
             }}
           >
-            {/* 1) 다른 수단으로 결제하기 (초록) */}
             <button
               onClick={onBack}
               style={{
-                width: 870,                
-                height: 140,             
-                backgroundColor: '#0A400C',
-                borderRadius: 32,
+                width: '100%',
+                maxWidth: 720,
+                padding: '26px 40px',
+                backgroundColor: '#0f7132',
+                borderRadius: 28,
                 border: 'none',
                 color: '#ffffff',
-                fontSize: 48,
-                fontWeight: 900,
-                boxShadow: '0 18px 32px rgba(0,0,0,0.28)',
+                fontSize: 26,
+                fontWeight: 800,
+                boxShadow: '0 18px 30px rgba(0,0,0,0.28)',
                 cursor: 'pointer',
               }}
-              {...hoverify('#0A400C', '#0b5a27')}
+              {...hoverify('#0f7132', '#0b5a27')}
             >
               다른 수단으로 결제하기
             </button>
-
-            {/* 2) 취소하기 (회색) */}
-            <button
-              onClick={onCancel}
-              style={{
-                width: 870,                
-                height: 140,               
-                backgroundColor: '#888888',
-                borderRadius: 32,
-                border: 'none',
-                color: '#ffffff',
-                fontSize: 48,
-                fontWeight: 900,
-                boxShadow: '0 18px 32px rgba(0,0,0,0.25)',
-                cursor: 'pointer',
-              }}
-              {...hoverify('#888888', '#6b7280')}
-            >
-              취소하기
-            </button>
           </div>
-
         </div>
       </div>
     </ScaledLayout>
@@ -1977,7 +1763,7 @@ export function ScreenCard({ payAmount = 0, onProcess, onBack, onShowOrder, onCa
 /* -------------------------------------------------
  * 6-B. 모바일 결제 대기 화면
  * ------------------------------------------------- */
-export function ScreenMobile({ payAmount = 0, onProcess, onBack, onShowOrder, onCancel, }) {
+export function ScreenMobile({ payAmount = 0, onProcess, onBack, onShowOrder, }) {
   const amountText = payAmount.toLocaleString('ko-KR');
 
   return (
@@ -2003,11 +1789,10 @@ export function ScreenMobile({ payAmount = 0, onProcess, onBack, onShowOrder, on
             flexDirection: 'column',
             alignItems: 'center',
             textAlign: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'space-between',
             gap: 40,
           }}
         >
-          {/* 상단 텍스트 + 아이콘 + 금액 + 주문목록 */}
           <div
             style={{
               display: 'flex',
@@ -2019,12 +1804,12 @@ export function ScreenMobile({ payAmount = 0, onProcess, onBack, onShowOrder, on
           >
             <div
               style={{
-                fontSize: 80,
+                fontSize: 44,
                 fontWeight: 900,
                 lineHeight: 1.4,
               }}
             >
-              <span style={{ color: '#0A400C' }}>바코드</span>를 인식해주세요
+              <span style={{ color: '#0f7132' }}>바코드</span>를 인식해주세요
             </div>
 
             <div
@@ -2035,14 +1820,14 @@ export function ScreenMobile({ payAmount = 0, onProcess, onBack, onShowOrder, on
               }}
               onClick={onProcess}
             >
-              <span style={{ fontSize: 270 }}>📲</span>
+              <span style={{ fontSize: 160 }}>📲</span>
             </div>
 
             <div
               style={{
-                fontSize: 60,
+                fontSize: 30,
                 fontWeight: 800,
-                color: '#0A400C',
+                color: '#0f7132',
               }}
             >
               결제금액: {amountText}원
@@ -2053,74 +1838,50 @@ export function ScreenMobile({ payAmount = 0, onProcess, onBack, onShowOrder, on
               onClick={onShowOrder}
               style={{
                 marginTop: 10,
-                padding: '20px 56px',
-                borderRadius: 26,
+                padding: '12px 32px',
+                borderRadius: 16,
                 border: 'none',
-                backgroundColor: '#626950',
+                backgroundColor: '#6b7056',
                 color: '#ffffff',
-                fontSize: 32,
-                fontWeight: 800,
+                fontSize: 20,
+                fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.18)',
               }}
-              {...hoverify('#626950', '#4b4f3d')}
             >
               주문목록 보기
             </button>
-            </div>
+          </div>
 
-            {/* 하단 두 개 버튼 영역 */}
-            <div
+          <div
+            style={{
+              width: '100%',
+              marginBottom: 40,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 24,
+            }}
+          >
+            <button
+              onClick={onBack}
               style={{
                 width: '100%',
-                marginTop: 80,
-                marginBottom: 40,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 24,
+                maxWidth: 720,
+                padding: '26px 40px',
+                backgroundColor: '#0f7132',
+                borderRadius: 28,
+                border: 'none',
+                color: '#ffffff',
+                fontSize: 26,
+                fontWeight: 800,
+                boxShadow: '0 18px 30px rgba(0,0,0,0.28)',
+                cursor: 'pointer',
               }}
+              {...hoverify('#0f7132', '#0b5a27')}
             >
-              {/* 1) 다른 수단으로 결제하기 */}
-              <button
-                onClick={onBack}
-                style={{
-                  width: 870,          
-                  height: 140,         
-                  backgroundColor: '#0A400C',
-                  borderRadius: 32,
-                  border: 'none',
-                  color: '#ffffff',
-                  fontSize: 48,
-                  fontWeight: 900,
-                  boxShadow: '0 18px 32px rgba(0,0,0,0.28)',
-                  cursor: 'pointer',
-                }}
-                {...hoverify('#0A400C', '#0b5a27')}
-              >
-                다른 수단으로 결제하기
-              </button>
-
-              {/* 2) 취소하기  */}
-              <button
-                onClick={onCancel}
-                style={{
-                  width: 870,          
-                  height: 140,       
-                  backgroundColor: '#888888',
-                  borderRadius: 32,
-                  border: 'none',
-                  color: '#ffffff',
-                  fontSize: 48,
-                  fontWeight: 900,
-                  boxShadow: '0 18px 32px rgba(0,0,0,0.25)',
-                  cursor: 'pointer',
-                }}
-                {...hoverify('#888888', '#6b7280')}
-              >
-                취소하기
-              </button>
-            </div>
+              다른 수단으로 결제하기
+            </button>
+          </div>
         </div>
       </div>
     </ScaledLayout>
@@ -2197,7 +1958,7 @@ export function ScreenProcessing({ payMethod, onCancel }) {
               style={{
                 padding: '12px 18px',
                 backgroundColor: '#f3f4f6',
-                border: '1px solid #888888',
+                border: '1px solid #e5e7eb',
                 borderRadius: 14,
                 cursor: 'pointer',
                 fontSize: 16,
@@ -2220,13 +1981,14 @@ export function ScreenProcessing({ payMethod, onCancel }) {
 export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
   const [seconds, setSeconds] = useState(10);
 
-  // 단일메뉴 NFC용 도장 적립 상태들
+  // 🔐 단일메뉴 NFC용 도장 적립 상태들
   const [showStampModal, setShowStampModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('010');
   const [stampStep, setStampStep] = useState('input'); // 'input' | 'complete'
 
-  // 타이머: 기본 10초 카운트다운 + 모달 열리면 일시정지
+  // ✅ 타이머: 기본 10초 카운트다운 + 모달 열리면 일시정지
   useEffect(() => {
+    // 도장 모달 열려 있고, 스탬프 기능 활성 상태라면 타이머 멈춤
     if (enableStamp && showStampModal) return;
 
     const timer = setInterval(() => {
@@ -2243,9 +2005,11 @@ export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
     return () => clearInterval(timer);
   }, [enableStamp, showStampModal, onReset]);
 
+  // 주문번호 표시
   const displayOrder =
     typeof orderNumber === 'number' ? orderNumber : '—';
 
+  // 📞 전화번호 포맷터
   const formatPhoneNumber = (num) => {
     if (!num) return '';
     const onlyNum = num.replace(/[^0-9]/g, '');
@@ -2277,36 +2041,33 @@ export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
           height: '100%',
           backgroundColor: '#ffffff',
           display: 'flex',
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           alignItems: 'center',
-          paddingTop: 120,
-          paddingBottom: 40,
+          padding: 40,
+          position: 'relative',
         }}
       >
+        {/* 기본 완료 화면 내용 (개인화 / 단일메뉴 공통) */}
         <div
           style={{
             width: '100%',
             maxWidth: 1080,
-            height: '100%',
-            boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             textAlign: 'center',
-            justifyContent: 'flex-start',
-            gap: 40,
+            gap: 48,
           }}
         >
-          {/* 상단 완료 정보 */}
-          <div style={{ fontSize: 78, fontWeight: 900 }}>
+          <div style={{ fontSize: 52, fontWeight: 900 }}>
             주문이 완료되었어요
           </div>
 
           <div
             style={{
-              fontSize: 60,
+              fontSize: 30,
               fontWeight: 700,
-              color: '#0A400C',
+              color: '#166534',
             }}
           >
             주문번호
@@ -2316,7 +2077,7 @@ export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
             style={{
               fontSize: 80,
               fontWeight: 900,
-              color: '#0A400C',
+              color: '#166534',
             }}
           >
             {displayOrder}
@@ -2324,14 +2085,13 @@ export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
 
           <div
             style={{
-              fontSize: 38,
+              fontSize: 24,
               color: '#111827',
             }}
           >
             주문번호 확인 후 카운터에서 음료를 받아주세요
           </div>
 
-          {/* 쿠폰 정보 */}
           <div
             style={{
               width: '100%',
@@ -2350,10 +2110,10 @@ export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
                 marginBottom: 12,
               }}
             >
-              <span style={{ fontSize: 48 }}>%</span>
+              <span style={{ fontSize: 28 }}>%</span>
               <span
                 style={{
-                  fontSize: 36,
+                  fontSize: 22,
                   fontWeight: 800,
                 }}
               >
@@ -2363,9 +2123,9 @@ export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
 
             <div
               style={{
-                fontSize: 48,
+                fontSize: 32,
                 fontWeight: 900,
-                color: '#0A400C',
+                color: '#166534',
                 marginBottom: 6,
               }}
             >
@@ -2374,108 +2134,299 @@ export function ScreenDone({ orderNumber, onReset, enableStamp = false }) {
 
             <div
               style={{
-                fontSize: 30,
+                fontSize: 18,
                 color: '#4b5563',
               }}
             >
               10회 적립 후,{' '}
-              <b style={{ color: '#0A400C' }}>결제 시 2,000원</b>이 자동으로
+              <b style={{ color: '#166534' }}>결제 시 2,000원</b>이 자동으로
               할인됩니다.
             </div>
           </div>
 
-          {/* 10초 카운트다운 */}
+          {/* ⏱ 10초 카운트다운 표시 */}
           <div
             style={{
-              fontSize: 30,
+              fontSize: 18,
               color: '#6b7280',
               textDecoration: 'underline',
               textUnderlineOffset: '4px',
               textDecorationThickness: '1.5px',
-              textDecorationColor: '#888888',
+              textDecorationColor: '#9ca3af',
             }}
           >
             {seconds}초 후 자동 닫힘
           </div>
 
-          {/* 하단 버튼 영역 */}
-          <div
-            style={{
-              width: '100%',
-              marginTop: 80,
-              marginBottom: 40,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 24,
-            }}
-          >
-            {/* 단일메뉴 NFC: 할인 도장 */}
-            {enableStamp && (
-              <button
-                onClick={() => {
-                  setPhoneNumber('010');
-                  setStampStep('input');
-                  setShowStampModal(true);
-                }}
-                style={{
-                  width: 870,
-                  height: 140,
-                  backgroundColor: '#0A400C',
-                  borderRadius: 32,
-                  border: 'none',
-                  color: 'white',
-                  fontSize: 48,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  boxShadow: '0 18px 32px rgba(0,0,0,0.28)',
-                }}
-                {...hoverify('#0A400C', '#0b5a27')}
-              >
-                할인 도장 적립하기
-              </button>
-            )}
-
-            {/* 처음으로 버튼 */}
+          {/* ✅ 단일메뉴 NFC일 때만 노출되는 버튼 */}
+          {enableStamp && (
             <button
-              onClick={onReset}
+              onClick={() => {
+                setPhoneNumber('010');
+                setStampStep('input');
+                setShowStampModal(true);
+              }}
               style={{
-                width: 870,
-                height: 140,
-                backgroundColor: '#0A400C',  
+                width: 800,
+                maxWidth: '100%',
+                height: 120,
+                backgroundColor: '#0f4c18',
                 borderRadius: 32,
                 border: 'none',
-                color: '#ffffff',
-                fontSize: 48,
+                color: 'white',
+                fontSize: 36,
                 fontWeight: 900,
-                boxShadow: '0 18px 32px rgba(0,0,0,0.25)',
                 cursor: 'pointer',
+                boxShadow: '0 16px 28px rgba(0,0,0,0.3)',
               }}
-              {...hoverify('#0A400C', '#0b5a27')}
+              {...hoverify('#0f4c18', '#0b3d12')}
             >
-              처음으로
+              할인 도장 적립하기
             </button>
-          </div>
+          )}
+
+          {/* 공통: 처음으로 버튼 */}
+          <button
+            onClick={onReset}
+            style={{
+              width: 800,
+              maxWidth: '100%',
+              height: 120,
+              backgroundColor: '#166534',
+              borderRadius: 32,
+              border: 'none',
+              color: 'white',
+              fontSize: 36,
+              fontWeight: 900,
+              cursor: 'pointer',
+              boxShadow: '0 16px 28px rgba(0,0,0,0.25)',
+            }}
+            {...hoverify('#166534', '#0f5132')}
+          >
+            처음으로
+          </button>
         </div>
 
-        {/* 도장 적립 모달 */}
+        {/* ✅ 단일메뉴 NFC에서만 표시되는 도장 적립 모달 */}
         {enableStamp && showStampModal && (
-          <StampPortal
-            stampStep={stampStep}
-            setStampStep={setStampStep}
-            phoneNumber={phoneNumber}
-            setPhoneNumber={setPhoneNumber}
-            formatPhoneNumber={formatPhoneNumber}
-            handleNumClick={handleNumClick}
-            handleClear={handleClear}
-            onClose={() => setShowStampModal(false)}
-          />
+          <div
+            style={{
+              position: 'fixed',      // ✅ 화면 기준으로 고정
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,              // ✅ 네 방향 다 0
+              backgroundColor: 'rgba(0,0,0,0.75)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 9999,           // ✅ 가장 위로
+            }}
+          >
+
+
+            <div
+              style={{
+                width: 500,
+                backgroundColor: 'white',
+                borderRadius: 32,
+                padding: 40,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+              }}
+            >
+              {/* STEP 1: 번호 입력 */}
+              {stampStep === 'input' && (
+                <>
+                  <div
+                    style={{
+                      fontSize: 28,
+                      fontWeight: 800,
+                      marginBottom: 30,
+                    }}
+                  >
+                    핸드폰 번호를 입력해주세요
+                  </div>
+
+                  <div
+                    style={{
+                      width: '100%',
+                      padding: '20px 0',
+                      backgroundColor: '#eee',
+                      borderRadius: 12,
+                      textAlign: 'center',
+                      fontSize: 32,
+                      fontWeight: 'bold',
+                      letterSpacing: 2,
+                      marginBottom: 30,
+                    }}
+                  >
+                    {formatPhoneNumber(phoneNumber)}
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr 1fr',
+                      gap: 12,
+                      width: '100%',
+                      marginBottom: 30,
+                    }}
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                      <button
+                        key={num}
+                        onClick={() => handleNumClick(num.toString())}
+                        style={keypadBtnStyle}
+                      >
+                        {num}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={handleClear}
+                      style={{
+                        ...keypadBtnStyle,
+                        backgroundColor: '#e5e7eb',
+                        fontSize: 24,
+                      }}
+                    >
+                      지움
+                    </button>
+
+                    <button
+                      onClick={() => handleNumClick('0')}
+                      style={keypadBtnStyle}
+                    >
+                      0
+                    </button>
+
+                    <button
+                      onClick={() => setStampStep('complete')}
+                      style={{
+                        ...keypadBtnStyle,
+                        backgroundColor: '#0f4c18',
+                        color: 'white',
+                        fontSize: 24,
+                      }}
+                    >
+                      완료
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* STEP 2: 적립 완료 */}
+              {stampStep === 'complete' && (
+                <>
+                  <div
+                    style={{
+                      fontSize: 28,
+                      fontWeight: 800,
+                      marginBottom: 10,
+                    }}
+                  >
+                    {phoneNumber.slice(-4)}님,
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 32,
+                      fontWeight: 900,
+                      marginBottom: 40,
+                    }}
+                  >
+                    적립이 완료되었습니다
+                  </div>
+
+                  <div
+                    style={{
+                      width: '100%',
+                      backgroundColor: '#f3f4f6',
+                      padding: '30px 20px',
+                      borderRadius: 20,
+                      textAlign: 'center',
+                      marginBottom: 40,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 10,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 24,
+                          backgroundColor: 'black',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: 32,
+                          height: 32,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        %
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 20,
+                          fontWeight: 800,
+                        }}
+                      >
+                        쿠폰 적립 내역
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 36,
+                        fontWeight: 900,
+                        color: '#0f4c18',
+                        marginBottom: 10,
+                      }}
+                    >
+                      3회 적립
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: '#666',
+                      }}
+                    >
+                      10회 적립 후, 다음 결제 시 2,000원이 자동
+                      할인됩니다.
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <button
+                onClick={() => setShowStampModal(false)}
+                style={{
+                  padding: '15px 40px',
+                  backgroundColor: '#888',
+                  color: 'white',
+                  borderRadius: 12,
+                  border: 'none',
+                  fontSize: 20,
+                  cursor: 'pointer',
+                }}
+              >
+                ✕ 닫기
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </ScaledLayout>
   );
 }
-
 
 /* 키패드 버튼 스타일 */
 const keypadBtnStyle = {
@@ -2490,241 +2441,6 @@ const keypadBtnStyle = {
   alignItems: 'center',
   justifyContent: 'center',
 };
-
-/* -------------------------------------------------
- * StampPortal : 모달을 document.body 에 직접 렌더링
- *  → transform(scale)을 무시하고 화면 전체를 덮게 만들기
- * ------------------------------------------------- */
-function StampPortal({
-  stampStep,
-  setStampStep,
-  phoneNumber,
-  setPhoneNumber,
-  formatPhoneNumber,
-  handleNumClick,
-  handleClear,
-  onClose,
-}) {
-  // SSR 대비
-  if (typeof document === 'undefined') return null;
-
-  return createPortal(
-    (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0, // top:0, right:0, bottom:0, left:0
-          backgroundColor: 'rgba(0,0,0,0.75)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-        }}
-        onClick={onClose}
-      >
-        <div
-          style={{
-            width: 500,
-            backgroundColor: 'white',
-            borderRadius: 32,
-            padding: 40,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            boxShadow: '0 14px 36px rgba(0,0,0,0.4)',
-          }}
-          onClick={(e) => e.stopPropagation()} // 모달 안 클릭 시 닫히지 않게, 적립 팝업 사이즈
-
-        >
-          {/* STEP 1: 번호 입력 */}
-          {stampStep === 'input' && (
-            <>
-              <div
-                style={{
-                  fontSize: 28,
-                  fontWeight: 800,
-                  marginBottom: 30,
-                }}
-              >
-                핸드폰 번호를 입력해주세요
-              </div>
-
-              <div
-                style={{
-                  width: '100%',
-                  padding: '20px 0',
-                  backgroundColor: '#eee',
-                  borderRadius: 12,
-                  textAlign: 'center',
-                  fontSize: 32,
-                  fontWeight: 'bold',
-                  letterSpacing: 2,
-                  marginBottom: 30,
-                }}
-              >
-                {formatPhoneNumber(phoneNumber)}
-              </div>
-
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr 1fr',
-                  gap: 12,
-                  width: '100%',
-                  marginBottom: 30,
-                }}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => handleNumClick(num.toString())}
-                    style={keypadBtnStyle}
-                  >
-                    {num}
-                  </button>
-                ))}
-
-                <button
-                  onClick={handleClear}
-                  style={{
-                    ...keypadBtnStyle,
-                    backgroundColor: '#888888',
-                    fontSize: 24,
-                  }}
-                >
-                  지움
-                </button>
-
-                <button
-                  onClick={() => handleNumClick('0')}
-                  style={keypadBtnStyle}
-                >
-                  0
-                </button>
-
-                <button
-                  onClick={() => setStampStep('complete')}
-                  style={{
-                    ...keypadBtnStyle,
-                    backgroundColor: '#0A400C',
-                    color: 'white',
-                    fontSize: 24,
-                  }}
-                >
-                  완료
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* STEP 2: 적립 완료 */}
-          {stampStep === 'complete' && (
-            <>
-              <div
-                style={{
-                  fontSize: 28,
-                  fontWeight: 800,
-                  marginBottom: 10,
-                }}
-              >
-                {phoneNumber.slice(-4)}님,
-              </div>
-              <div
-                style={{
-                  fontSize: 32,
-                  fontWeight: 900,
-                  marginBottom: 40,
-                }}
-              >
-                적립이 완료되었습니다
-              </div>
-
-              <div
-                style={{
-                  width: '100%',
-                  backgroundColor: '#f3f4f6',
-                  padding: '30px 20px',
-                  borderRadius: 20,
-                  textAlign: 'center',
-                  marginBottom: 40,
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 10,
-                    marginBottom: 10,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 24,
-                      backgroundColor: 'black',
-                      color: 'white',
-                      borderRadius: '50%',
-                      width: 32,
-                      height: 32,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    %
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 800,
-                    }}
-                  >
-                    쿠폰 적립 내역
-                  </span>
-                </div>
-                <div
-                  style={{
-                    fontSize: 36,
-                    fontWeight: 900,
-                    color: '#0A400C',
-                    marginBottom: 10,
-                  }}
-                >
-                  3회 적립
-                </div>
-                <div
-                  style={{
-                    fontSize: 14,
-                    color: '#666',
-                  }}
-                >
-                  10회 적립 후, 다음 결제 시 2,000원이 자동
-                  할인됩니다.
-                </div>
-              </div>
-            </>
-          )}
-
-          <button
-            onClick={onClose}
-            style={{
-              padding: '15px 40px',
-              backgroundColor: '#888',
-              color: 'white',
-              borderRadius: 12,
-              border: 'none',
-              fontSize: 20,
-              cursor: 'pointer',
-            }}
-          >
-            ✕ 닫기
-          </button>
-        </div>
-      </div>
-    ),
-    document.body
-  );
-}
 
 
 
@@ -2764,7 +2480,7 @@ export function ScreenCart({
   const currentItems = cart.slice(startIdx, endIdx);
 
   const showPlusBox =
-    currentItems.length < itemsPerPage;
+    currentItems.length < itemsPerPage || endIdx >= cart.length;
 
   const handlePrevPage = () => {
     if (currentPage > 0) setCurrentPage((p) => p - 1);
@@ -2779,34 +2495,34 @@ export function ScreenCart({
     setShowDineModal(true);
   };
 
+
+
   const handleDineSelect = (dineType) => {
     setShowDineModal(false);
     if (onCheckout) onCheckout(dineType); // 'takeout' | 'dinein'
   };
 
-
-
-    return (
+  return (
     <ScaledLayout>
       <div
         style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: '#ffffff',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
+          width: "100%",
+          height: "100%",
+          backgroundColor: "#ffffff",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
           paddingTop: 40,
           paddingBottom: 40,
-          boxSizing: 'border-box',
-          position: 'relative',
+          boxSizing: "border-box",
+          position: "relative",
         }}
       >
         {/* 타이틀 */}
         <div
           style={{
-            fontSize: 56,
+            fontSize: 52,
             fontWeight: 900,
             marginBottom: 30,
           }}
@@ -2817,15 +2533,15 @@ export function ScreenCart({
         {/* 메인 컨테이너 (피그마 965 x 1240 비율) */}
         <div
           style={{
-            position: 'relative',
+            position: "relative",
             width: 880,
             height: 1130,
-            maxWidth: '100%',
-            margin: '0 auto',
-            boxSizing: 'border-box',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            maxWidth: "100%",
+            margin: "0 auto",
+            boxSizing: "border-box",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {/* 왼쪽 화살표 */}
@@ -2833,25 +2549,25 @@ export function ScreenCart({
             <button
               onClick={handlePrevPage}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 left: -60,
-                top: '50%',
-                transform: 'translateY(-50%)',
+                top: "50%",
+                transform: "translateY(-50%)",
                 width: 50,
                 height: 120,
                 borderRadius: 16,
-                border: 'none',
-                backgroundColor: '#0A400C',
-                color: 'white',
+                border: "none",
+                backgroundColor: "#064e3b",
+                color: "white",
                 fontSize: 32,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.35)',
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.35)",
                 zIndex: 10,
               }}
-              {...hoverify('#0A400C', '#0b5a27')}
+              {...hoverify("#064e3b", "#022c22")}
             >
               ◀
             </button>
@@ -2862,48 +2578,48 @@ export function ScreenCart({
             <button
               onClick={handleNextPage}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 right: -60,
-                top: '50%',
-                transform: 'translateY(-50%)',
+                top: "50%",
+                transform: "translateY(-50%)",
                 width: 50,
                 height: 120,
                 borderRadius: 16,
-                border: 'none',
-                backgroundColor: '#0A400C',
-                color: 'white',
+                border: "none",
+                backgroundColor: "#064e3b",
+                color: "white",
                 fontSize: 32,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.35)',
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.35)",
                 zIndex: 10,
               }}
-              {...hoverify('#0A400C', '#0b5a27')}
+              {...hoverify("#064e3b", "#022c22")}
             >
               ▶
             </button>
           )}
 
-          {/* 2 x 2 그리드 (카드 450 x 550, 간격 140) */}
+          {/* 2 x 2 그리드 (카드 450 x 550, 간격 140 느낌) */}
           <div
             style={{
               width: 880,
               height: 1130,
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 450px)',
-              gridTemplateRows: 'repeat(2, 550px)',
-              justifyContent: 'space-between',
-              alignContent: 'space-between',
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 450px)",
+              gridTemplateRows: "repeat(2, 550px)",
+              justifyContent: "space-between",
+              alignContent: "space-between",
               rowGap: 100,
               columnGap: 50,
-              boxSizing: 'border-box',
+              boxSizing: "border-box",
             }}
           >
             {currentItems.map((item) => (
               <CartItemCard
-                key={item.CartId}
+                key={item.id}
                 item={item}
                 onQtyChange={onQtyChange}
                 onRemove={onRemove}
@@ -2917,24 +2633,24 @@ export function ScreenCart({
                   width: 420,
                   height: 500,
                   borderRadius: 24,
-                  border: '3px dashed #0A400C',
-                  backgroundColor: '#ffffff',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxSizing: 'border-box',
+                  border: "3px dashed #22c55e",
+                  backgroundColor: "#ffffff",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxSizing: "border-box",
                 }}
               >
                 <div
                   style={{
                     width: 110,
                     height: 110,
-                    borderRadius: '50%',
-                    border: '5px solid #0A400C',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    borderRadius: "50%",
+                    border: "5px solid #22c55e",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     marginBottom: 18,
                   }}
                 >
@@ -2942,7 +2658,7 @@ export function ScreenCart({
                     style={{
                       fontSize: 68,
                       fontWeight: 700,
-                      color: '#0A400C',
+                      color: "#22c55e",
                       marginTop: -4,
                     }}
                   >
@@ -2951,10 +2667,10 @@ export function ScreenCart({
                 </div>
                 <div
                   style={{
-                    fontSize: 30,
+                    fontSize: 22,
                     fontWeight: 800,
-                    color: '#000000',
-                    textAlign: 'center',
+                    color: "#065f46",
+                    textAlign: "center",
                     lineHeight: 1.6,
                   }}
                 >
@@ -2970,12 +2686,12 @@ export function ScreenCart({
           {totalPages > 1 && (
             <div
               style={{
-                position: 'absolute',
+                position: "absolute",
                 bottom: -40,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                justifyContent: 'center',
+                left: "50%",
+                transform: "translateX(-50%)",
+                display: "flex",
+                justifyContent: "center",
                 gap: 8,
               }}
             >
@@ -2985,10 +2701,10 @@ export function ScreenCart({
                   style={{
                     width: idx === currentPage ? 12 : 8,
                     height: idx === currentPage ? 12 : 8,
-                    borderRadius: '50%',
+                    borderRadius: "50%",
                     backgroundColor:
-                      idx === currentPage ? '#0A400C' : '#888888',
-                    transition: 'all 0.3s',
+                      idx === currentPage ? "#064e3b" : "#d1d5db",
+                    transition: "all 0.3s",
                   }}
                 />
               ))}
@@ -3000,26 +2716,26 @@ export function ScreenCart({
         <div
           style={{
             marginTop: 48,
-            display: 'flex',
-            flexDirection: 'row',
+            display: "flex",
+            flexDirection: "row",
             gap: 40,
           }}
         >
           <button
             onClick={onReset}
             style={{
-              width: 415,
-              height: 120,
+              width: 260,
+              height: 110,
               borderRadius: 32,
-              border: 'none',
-              backgroundColor: '#888888',
-              color: '#ffffff',
-              fontSize: 32,
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 16px 28px rgba(0,0,0,0.22)',
+              border: "none",
+              backgroundColor: "#9b9b9b",
+              color: "#ffffff",
+              fontSize: 34,
+              fontWeight: 900,
+              cursor: "pointer",
+              boxShadow: "0 16px 28px rgba(0,0,0,0.25)",
             }}
-            {...hoverify('#888888', '#6b7280')}
+            {...hoverify("#9ca3af", "#6b7280")}
           >
             처음으로
           </button>
@@ -3028,167 +2744,154 @@ export function ScreenCart({
             onClick={handleCheckoutClick}
             disabled={!hasItems}
             style={{
-              width: 415,
-              height: 120,
+              width: 260,
+              height: 110,
               borderRadius: 32,
-              border: 'none',
-              backgroundColor: hasItems ? '#0A400C' : '#888888',
-              color: '#ffffff',
-              fontSize: 32,
-              fontWeight: 800,
-              cursor: hasItems ? 'pointer' : 'not-allowed',
+              border: "none",
+              backgroundColor: hasItems ? "#0b5d35" : "#d1d5db",
+              color: "#ffffff",
+              fontSize: 34,
+              fontWeight: 900,
+              cursor: hasItems ? "pointer" : "not-allowed",
               boxShadow: hasItems
-                ? '0 18px 28px rgba(0,0,0,0.22)'
-                : 'none',
+                ? "0 18px 34px rgba(0,0,0,0.35)"
+                : "none",
               opacity: hasItems ? 1 : 0.5,
             }}
-            {...(hasItems ? hoverify('#0A400C', '#0b5a27') : {})}
+            {...(hasItems ? hoverify("#064e3b", "#022c22") : {})}
           >
             결제하기
           </button>
         </div>
 
-        {/* 받을 방법 선택 모달 */}
-        {/* 받을 방법 선택 모달 (포탈로 전체 화면 덮기) */}
-        {showDineModal &&
-        typeof document !== "undefined" &&
-        createPortal(
-            (
+        {/* 받을 방법 선택 모달 (전체 화면 덮기) */}
+        {showDineModal && (
+          <div
+            style={{
+              position: "fixed",          // ✅ 화면에 고정
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,                  // ✅ 네 방향 다 0 → 항상 전체 화면
+              backgroundColor: "rgba(0,0,0,0.7)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,               // ✅ 어떤 내용 위에도 올라오도록
+            }}
+            onClick={() => setShowDineModal(false)}
+          >
             <div
-                style={{
-                position: "fixed",
-                inset: 0, // top/left/right/bottom 모두 0
-                backgroundColor: "rgba(0,0,0,0.7)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 9999,
-                padding: "24px 16px",    
-                boxSizing: "border-box",
-                }}
-                onClick={() => setShowDineModal(false)}
+              style={{
+                backgroundColor: "white",
+                borderRadius: 32,
+                padding: 50,
+                maxWidth: 520,
+                textAlign: "center",
+                boxShadow: "0 24px 70px rgba(0,0,0,0.35)",
+              }}
+              onClick={(e) => e.stopPropagation()}   // 모달 안 클릭 시 닫히지 않게
             >
-                <div
+              <div
                 style={{
-                    backgroundColor: "white",
-                    borderRadius: 36,
-                    padding: 64,
-                    width: 700,
-                    maxWidth: "90vw",
-                    minHeight: 480,
-                    textAlign: "center",
-                    boxShadow: "0 28px 80px rgba(0,0,0,0.4)",
+                  fontSize: 40,
+                  fontWeight: 900,
+                  marginBottom: 36,
                 }}
-                onClick={(e) => e.stopPropagation()} // 안쪽 클릭 시 닫히지 않게
-                >
-                {/* 제목 */}
-                <div
-                    style={{
-                    fontSize: 48,
-                    fontWeight: 900,
-                    marginBottom: 48,
-                    whiteSpace: "nowrap",   // 줄바꿈 방지
-                    textAlign: "center",
-                    width: "100%",
-                    }}
-                >
-                    받을 방법을 선택해주세요
-                </div>
+              >
+                받을 방법을 선택해주세요
+              </div>
 
-                {/* 포장 / 먹고 가기 버튼 영역 */}
-                <div
-                    style={{
-                    display: "flex",
-                    gap: 36,
-                    justifyContent: "center",
-                    marginBottom: 40,
-                    }}
-                >
-                    {/* 포장하기 */}
-                    <button
-                    onClick={() => handleDineSelect("takeout")}
-                    style={{
-                        width: 260,
-                        height: 310,
-                        backgroundColor: "#FEFAE0",
-                        border: "3px solid #626950",
-                        borderRadius: 32,
-                        cursor: "pointer",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 22,
-                        boxShadow: "0 12px 30px rgba(0,0,0,0.16)",
-                    }}
-                    {...hoverify("#FEFAE0", "#fef3c7")}
-                    >
-                    <div style={{ fontSize: 110 }}>🛍️</div>
-                    <div
-                        style={{
-                        fontSize: 36,
-                        fontWeight: 800,
-                        color: "#3F3F2F",
-                        }}
-                    >
-                        포장하기
-                    </div>
-                    </button>
-
-                    {/* 먹고 가기 */}
-                    <button
-                    onClick={() => handleDineSelect("dinein")}
-                    style={{
-                        width: 260,
-                        height: 310,
-                        backgroundColor: "#FEFAE0",
-                        border: "3px solid #626950",
-                        borderRadius: 32,
-                        cursor: "pointer",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 22,
-                        boxShadow: "0 12px 30px rgba(0,0,0,0.16)",
-                    }}
-                    {...hoverify("#FEFAE0", "#F7F3D6")}
-                    >
-                    <div style={{ fontSize: 110 }}>🍽️</div>
-                    <div
-                        style={{
-                        fontSize: 36,
-                        fontWeight: 800,
-                        color: "#0A400C",
-                        }}
-                    >
-                        먹고 가기
-                    </div>
-                    </button>
-                </div>
-
-                {/* 닫기 버튼 */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 28,
+                  justifyContent: "center",
+                  marginBottom: 30,
+                }}
+              >
+                {/* 포장하기 */}
                 <button
-                    onClick={() => setShowDineModal(false)}
-                    style={{
-                    marginTop: 8,
-                    padding: "16px 40px",
-                    backgroundColor: "#626950",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 18,
-                    fontSize: 22,
-                    fontWeight: 700,
+                  onClick={() => handleDineSelect("takeout")}
+                  style={{
+                    width: 210,
+                    height: 260,
+                    backgroundColor: "#FEFCE8",
+                    border: "3px solid #6B705C",
+                    borderRadius: 28,
                     cursor: "pointer",
-                    }}
-                    {...hoverify("#6b7280", "#4b5563")}
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 18,
+                    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+                  }}
+                  {...hoverify("#fffbeb", "#fef3c7")}
                 >
-                    ✕ 닫기
+                  <div style={{ fontSize: 80 }}>🛍️</div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 800,
+                      color: "#3F3F2F",
+                    }}
+                  >
+                    포장하기
+                  </div>
                 </button>
-                </div>
+
+                {/* 먹고 가기 */}
+                <button
+                  onClick={() => handleDineSelect("dinein")}
+                  style={{
+                    width: 210,
+                    height: 260,
+                    backgroundColor: "#fffbeb",
+                    border: "3px solid #6B705C",
+                    borderRadius: 28,
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 18,
+                    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+                  }}
+                  {...hoverify("#FEFCE8", "#F7F3D6")}
+                >
+                  <div style={{ fontSize: 80 }}>🍽️</div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 800,
+                      color: "#064e3b",
+                    }}
+                  >
+                    먹고 가기
+                  </div>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowDineModal(false)}
+                style={{
+                  marginTop: 8,
+                  padding: "14px 32px",
+                  backgroundColor: "#8B8B7A",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 16,
+                  fontSize: 20,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+                {...hoverify("#6b7280", "#4b5563")}
+              >
+                ✕ 닫기
+              </button>
             </div>
-            ),
-            document.body
+          </div>
         )}
       </div>
     </ScaledLayout>
@@ -3207,13 +2910,11 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
 
   const tempBadge =
     options?.temp === "hot" ? "🔥 따뜻한" : "❄️ 차가운";
-   const badgeColor =
-    options?.temp === 'hot' ? '#F15151' : '#0B51FF';
+  const badgeColor = options?.temp === "hot" ? "#ef4444" : "#2563eb";
 
   // 장바구니에 담긴 옵션(options.temp)에 맞는 이미지를 가져옵니다.
   const currentTemp = options?.temp || 'hot'; 
-  const imgFileName = menu.images 
-  ? (menu.images[currentTemp] || menu.images.only) : null;
+  const imgFileName = menu.images ? menu.images[currentTemp] : null;
   const imgSrc = imgFileName ? `/images/menus/${imgFileName}` : null;
 
   // [추가] 가격 계산 로직 (여기가 핵심!)
@@ -3223,66 +2924,63 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
     <div
       style={{
         width: 420,
-        height: 520,
-        display: 'flex',
-        flexDirection: 'column',
+        height: 500,
+        display: "flex",
+        flexDirection: "column",
         padding: 24,
         borderRadius: 24,
-        border: '3px solid #0f5132',
-        backgroundColor: 'white',
-        boxShadow: '0 14px 26px rgba(0,0,0,0.18)',
-        boxSizing: 'border-box',
-        position: 'relative',
+        border: "3px solid #0f5132",
+        backgroundColor: "white",
+        boxShadow: "0 14px 26px rgba(0,0,0,0.18)",
+        boxSizing: "border-box",
+        position: "relative",
       }}
     >
       {/* 온도 배지 */}
       <div
         style={{
-          position: 'absolute',
-          top: 14,
-          right: 16,
+          position: "absolute",
+          top: 16,
+          left: 18,
           backgroundColor: badgeColor,
-          color: 'white',
-          padding: '10px 22px',
-          borderRadius: 18,
-          fontSize: 20,
-          fontWeight: 900,
-          boxShadow: '0 4px 10px rgba(0,0,0,0.18)',
+          color: "white",
+          padding: "6px 14px",
+          borderRadius: 14,
+          fontSize: 16,
+          fontWeight: 700,
+          zIndex: 10,
         }}
       >
         {tempBadge}
       </div>
 
-      {/* 상단 영역: 왼쪽 이미지 / 오른쪽 텍스트 */}
+      {/* 상단 이미지 + 이름/가격 */}
       <div
         style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 22,
-          marginTop: 60,
-          marginBottom: 26,
+          marginTop: 40,
+          marginBottom: 20,
+          display: "flex",
+          gap: 18,
         }}
       >
-        {/* 왼쪽 이미지 */}
         <div
           style={{
-            width: 180,
-            height: 190,
-            borderRadius: 22,
-            backgroundColor: '#f3f4f6',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 60,
-            flexShrink: 0,
+            width: 110,
+            height: 150,
+            borderRadius: 18,
+            backgroundColor: "#f3f4f6",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 36,
+            overflow: "hidden"
           }}
         >
           {imgSrc ? (
             <img 
               src={imgSrc} 
               alt={menu.name} 
-              style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius:22}}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           ) : (
             menu.emoji || "☕"
@@ -3291,25 +2989,28 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
 
         <div
           style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: 8,
             flex: 1,
-            textAlign: 'left',
-            marginLeft: 18,
           }}
         >
           <div
             style={{
-              fontSize: 36,
+              fontSize: 24,
               fontWeight: 900,
-              marginBottom: 10,
+              wordBreak: 'keep-all',
+              LineHeight: 1.2,
             }}
           >
             {menu.name}
           </div>
           <div
             style={{
-              fontSize: 36,
-              fontWeight: 900,
-              color: '#0A400C',
+              fontSize: 22,
+              color: "#0f766e",
+              fontWeight: 800,
             }}
           >
             {displayPrice.toLocaleString()}원 {/* 가격 수정 */}
@@ -3320,25 +3021,25 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
       {/* 중앙: 수량 컨트롤 */}
       <div
         style={{
-          marginTop: 20,
-          marginBottom: 10,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 32,
+          marginTop: 10,
+          marginBottom: 26,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 18,
         }}
       >
         <button
-          onClick={() => onQtyChange(item.cartId, -1)}
+          onClick={() => onQtyChange(item.id, -1)}
           style={{
-            width: 120,
-            height: 70,
-            borderRadius: 8,
-            border: '2px solid #888888',
-            background: 'white',
-            fontSize: 32,
+            width: 60,
+            height: 60,
+            borderRadius: 14,
+            border: "2px solid #d1d5db",
+            background: "white",
+            fontSize: 24,
             fontWeight: 900,
-            cursor: 'pointer',
+            cursor: "pointer",
           }}
         >
           -
@@ -3346,9 +3047,9 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
 
         <div
           style={{
-            width: 44,
-            textAlign: 'center',
-            fontSize: 28,
+            width: 40,
+            textAlign: "center",
+            fontSize: 26,
             fontWeight: 900,
           }}
         >
@@ -3356,39 +3057,44 @@ function CartItemCard({ item, onQtyChange, onRemove }) {
         </div>
 
         <button
-          onClick={() => onQtyChange(item.cartId, +1)}
+          onClick={() => onQtyChange(item.id, +1)}
           style={{
-            width: 120,
+            width: 70,
             height: 70,
-            borderRadius: 8,
-            border: 'none',
-            background: '#0A400C',
-            color: 'white',
-            fontSize: 32,
+            borderRadius: 14,
+            border: "none",
+            background: "#064e3b",
+            color: "white",
+            fontSize: 26,
             fontWeight: 900,
-            cursor: 'pointer',
+            cursor: "pointer",
           }}
         >
           +
         </button>
       </div>
 
-      {/* 삭제 버튼 */}
-      <div style={{ marginTop: 'auto' }}>
+      {/* 하단: 삭제 버튼 */}
+      <div
+        style={{
+          marginTop: "auto",
+          width: "100%",
+        }}
+      >
         <button
-          onClick={() => onRemove(item.cartId)}
+          onClick={() => onRemove(item.id)}
           style={{
-            width: '100%',
-            height: 72,
+            width: "100%",
+            height: 70,
             borderRadius: 18,
-            border: 'none',
-            background: '#777777',
-            color: 'white',
-            fontSize: 22,
+            border: "none",
+            background: "#7b7b7b",
+            color: "white",
+            fontSize: 20,
             fontWeight: 800,
-            cursor: 'pointer',
+            cursor: "pointer",
           }}
-          {...hoverify('#777777', '#4b5563')}
+          {...hoverify("#6b7280", "#4b5563")}
         >
           🗑 삭제
         </button>

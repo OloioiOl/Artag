@@ -1,5 +1,5 @@
 /* src/KioskApp.js */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 import { 
@@ -8,15 +8,13 @@ import {
   ScreenConfirm,
   ScreenOptions,
   ScreenAdvOptions,
-  ScreenFinalConfirm,  
+  ScreenFinalConfirm,   // ✅ 새로 추가
   ScreenPayment,
   ScreenCard,
   ScreenMobile,
   ScreenProcessing,
   ScreenDone,
-  ScreenCart,
-  getPrice, //신규추가
-  calcCartTotal
+  ScreenCart
 } from './components/KioskScreens';
 
 const API_URL = "http://localhost:8080";
@@ -24,8 +22,6 @@ const API_URL = "http://localhost:8080";
 export default function KioskApp() {
   // 단일 메뉴 NFC 전용 플로우인지 여부
   const [isSingleFlow, setIsSingleFlow] = useState(false);
-
-  const lastTagTime = useRef(0);
 
   // 장바구니 (단일 메뉴 카드용)
   const [cart, setCart] = useState([]); 
@@ -68,18 +64,18 @@ export default function KioskApp() {
 
 
   // ====== 장바구니 핸들러 ======
-  const handleCartQtyChange = (cartId, delta) => {
+  const handleCartQtyChange = (id, delta) => {
     setCart(prev =>
       prev.map(item =>
-        item.cartId === cartId
+        item.id === id
           ? { ...item, qty: Math.max(1, item.qty + delta) }
           : item
       )
     );
   };
 
-  const handleCartRemove = (cartId) => {
-    setCart(prev => prev.filter(item => item.cartId !== cartId));
+  const handleCartRemove = (id) => {
+    setCart(prev => prev.filter(item => item.id !== id));
   };
 
   // ✅ 수정 버전
@@ -131,13 +127,6 @@ export default function KioskApp() {
 
       const { type } = data;
 
-      const now = Date.now();
-      if (now - lastTagTime.current < 400) {
-        console.log("⏳ 너무 빠른 태그 감지됨 - 무시");
-        return;
-      }
-      lastTagTime.current = now; // 태그 시간 갱신
-
       // [CASE A] 일반 회원 태그 (개인화 NFC)
             // [CASE A] 일반 회원 태그 (개인화 NFC)
       if (type === "TAG_ON") {
@@ -179,32 +168,26 @@ export default function KioskApp() {
           return;
         }
 
-        const opt = data.options || data.fixed_options || {};
-
         const baseOptions = {
-          temp: opt.temp || "ice",
-          size: opt.size || "basic",
-          shot: typeof opt.shot === "number" ? opt.shot : 2,
-          milk: opt.milk || "regular",
+          temp: data.options?.temp || "ice",
+          size: data.options?.size || "basic",
+          shot: data.options?.shot || 2,
+          milk: data.options?.milk || "regular",
         };
 
         setIsSingleFlow(true);
         setCurrentUid("GUEST");
 
         setCart((prev) => {
-          const existing = prev.find((item) =>
-            item.id === menuId &&
-            JSON.stringify(item.options) === JSON.stringify(baseOptions)
-          );
+          const existing = prev.find((item) => item.id === menuId);
           if (existing) {
             return prev.map((item) =>
-              item.cartId === existing.cartId ? { ...item, qty: item.qty + 1 } : item
+              item.id === menuId ? { ...item, qty: item.qty + 1 } : item
             );
           }
           return [
             ...prev,
             {
-              cartId: Date.now() + Math.random(),
               id: menuId,
               menu: found,
               qty: 1,
@@ -234,41 +217,13 @@ export default function KioskApp() {
   // ====== 3. 주문 전송 로직 ======
   useEffect(() => {
     if (screen === 'processing') {
-
-      let payload = {};
-
-      if (isSingleFlow) {
-        // ✅ [CASE 1] 장바구니 주문 (NFC 카드 모드)
-        const totalAmount = calcCartTotal(cart);
-        const firstItem = cart[0];
-        
-        // 메뉴 이름을 "아메리카노 외 N건" 형식으로 만듦
-        const summaryName = cart.length > 1 
-          ? `${firstItem.menu.name} 외 ${cart.length - 1}건`
-          : firstItem.menu.name;
-
-        payload = {
-          uid: currentUid || "GUEST", // 보통 GUEST
-          menuId: "CART_ORDER",       // 장바구니 주문임을 표시 (또는 firstItem.id)
-          menuName: summaryName,      // "아메리카노 외 2건"
-          price: totalAmount,         // ✅ 전체 합산 금액 전송!
-          options: { 
-             mode: 'cart_nfc',
-             detail: cart // (선택) 나중에 상세 내역 필요하면 cart 배열 자체를 옵션에 저장
-          }
-        };
-
-      } else {
-        // ✅ [CASE 2] 일반 개별 주문 (기존 로직 유지)
-        const calcPrice = finalPrice ?? getPrice(selectedMenu, temp);
-        payload = {
-          uid: currentUid || "GUEST",
-          menuId: selectedId,
-          menuName: selectedMenu ? selectedMenu.name : "알수없음",
-          price: calcPrice,
-          options: { temp, cup, dine, size, shot, milk }
-        };
-      }
+      const payload = {
+        uid: currentUid || "GUEST",
+        menuId: selectedId,
+        menuName: selectedMenu ? selectedMenu.name : "알수없음",
+        price: finalPrice ?? (selectedMenu?.price || 0),
+        options: { temp, cup, dine, size, shot, milk }
+      };
 
       console.log("🚀 주문 전송 중:", payload);
 
@@ -341,8 +296,7 @@ export default function KioskApp() {
   };
 
   const handleDirectOrder = () => {
-    setScreen('card');
-    setPayMethod('card'); 
+    setScreen('payment'); 
   };
 
 
@@ -360,24 +314,15 @@ export default function KioskApp() {
   
   if (screen === 'nfc') {
     let displayData = [];
-    let recommendTextMode = null; 
     if (selectedCategory === 'recommend') {
       if (top3 && top3.length > 0) {
         displayData = top3.map(t => {
           const original = menus.find(m => m.id === t.menu_id) || {};
           return { ...original, ...t };
         });
-        recommendTextMode = 'personal';  // ⭐ 자주 드시던 메뉴 모드
       } else {
-      // ⭐ [변경] 이름 대신 ID 목록을 사용 (DB에 저장된 정확한 id 입력 필수)
-      const RECOMMEND_IDS = ['americano', 'latte', 'cappuccino'];
-
-      // id 기준으로 메뉴 객체 찾아서, 순서도 고정
-      displayData = RECOMMEND_IDS
-        .map((id) => menus.find((m) => m.id === id))
-        .filter(Boolean); // 혹시 ID가 틀려서 못 찾은 경우(undefined) 제거
-        recommendTextMode = 'today';     // ⭐ 오늘의 추천 메뉴 모드
-    }
+        displayData = menus; 
+      }
     } else {
       displayData = menus.filter(m => m.category === selectedCategory);
     }
@@ -386,7 +331,6 @@ export default function KioskApp() {
       <ScreenMenu 
         items={displayData}
         isRecommendMode={selectedCategory === 'recommend'}
-        recommendTextMode={recommendTextMode}    // ⭐ 새 props 전달
         onSelect={(id) => { setSelectedId(id); setScreen('confirm'); }} 
         onBack={handleLogout}         
         onOrderOther={handleOrderOther}
@@ -402,10 +346,7 @@ export default function KioskApp() {
         cup={cup}
         onDirectOrder={handleDirectOrder} 
         onChangeOptions={() => setScreen('options')} 
-        onChangeMenu={() => {
-        setSelectedId(null);   
-        setScreen('nfc');    
-        }}   
+        onOrderOther={handleOrderOther} /// !!! 다른 메뉴 버튼 핸들러
       />
     );
   }
@@ -414,7 +355,6 @@ export default function KioskApp() {
   if (screen === 'options') {
     return (
       <ScreenOptions
-        menu={selectedMenu}
         temp={temp} setTemp={setTemp}
         dine={dine} setDine={setDine}
         setCup={setCup}
@@ -427,11 +367,9 @@ export default function KioskApp() {
 
   // 고급 옵션 (사이즈/샷/우유)
   if (screen === 'advOptions') {
-
     return (
       <ScreenAdvOptions
-        menu={selectedMenu}
-        temp={temp}
+        basePrice={selectedMenu?.price || 0}
         size={size} setSize={setSize}
         shot={shot} setShot={setShot}
         milk={milk} setMilk={setMilk}
@@ -497,36 +435,20 @@ export default function KioskApp() {
       <ScreenPayment 
         onSelectCard={() => { setPayMethod('card'); setScreen('card'); }}
         onSelectMobile={() => { setPayMethod('mobile'); setScreen('mobile'); }}
-
-        // ✅ 결제수단 선택 화면의 "취소하기" → 3번 화면으로
-        onCancel={() => setScreen('confirm')}
-        // 혹시 컴포넌트에서 이름을 onBack 으로 쓰고 있으면:
-        // onBack={() => setScreen('confirm')}
       />
     );
   }
 
- const billPrice = isSingleFlow 
-  ? calcCartTotal(cart) 
-  : (finalPrice ?? getPrice(selectedMenu, temp));
-
   if (screen === 'card') {
     return (
       <ScreenCard
-        payAmount={billPrice}
+        payAmount={finalPrice ?? (selectedMenu?.price || 0)}
         onProcess={() => setScreen('processing')}
         onBack={() => setScreen('payment')}
         onShowOrder={() => {
           // 단일메뉴 NFC → 장바구니 / 개인화 NFC → 기존 최종확인 화면
           if (isSingleFlow) setScreen('cart');
           else setScreen('finalConfirm');
-        }}
-        onCancel={() => {
-          if (isSingleFlow) {
-            setScreen('cart');        // 단일메뉴 NFC일 땐 그대로 장바구니로
-          } else {
-            setScreen('confirm');     // 일반 플로우에선 3번 "선택한 메뉴" 화면으로
-          }
         }}
       />
     );
@@ -539,20 +461,7 @@ export default function KioskApp() {
         payAmount={finalPrice ?? (selectedMenu?.price || 0)}
         onProcess={() => setScreen('processing')}
         onBack={() => setScreen('payment')}
-        onShowOrder={() => {
-          if (isSingleFlow) {
-            setScreen('cart');          // 단일메뉴 NFC → 장바구니
-          } else {
-            setScreen('finalConfirm'); // 일반 → 최종 확인
-          }
-        }}
-        onCancel={() => {
-          if (isSingleFlow) {
-            setScreen('cart');          // 단일메뉴 NFC → 장바구니
-          } else {
-            setScreen('confirm');       // 일반 → 3번 "선택한 메뉴 화면"
-          }
-        }}
+        onShowOrder={() => setScreen('finalConfirm')}
       />
     );
   }
@@ -561,25 +470,19 @@ export default function KioskApp() {
     return (
       <ScreenProcessing
         payMethod={payMethod}
-        onCancel={() => setScreen('confirm')}
+        onCancel={() => setScreen('payment')}
       />
     );
   }
 
   if (screen === 'done') {
-  // 스탬프를 허용할 조건:
-  // 1) 단일메뉴 NFC 플로우(isSingleFlow === true)
-  // 2) NFC를 전혀 안 쓰고 일반 주문한 경우(currentUid === null)
-    const shouldEnableStamp = isSingleFlow || !currentUid;
-
-    return (
-      <ScreenDone
-        orderNumber={orderNumber}
-        onReset={handleDoneReset}
-        enableStamp={shouldEnableStamp}
-      />
-    );
-  }
+  return (
+    <ScreenDone
+      orderNumber={orderNumber}   // ✅ 현재 주문번호 표시
+      onReset={handleDoneReset}   // ✅ 완료화면 닫힐 때 번호 +1
+    />
+  );
+}
 
 
 
